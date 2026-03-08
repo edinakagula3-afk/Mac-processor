@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M.A.C. Web Assistant</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00ff9d">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a2a, #000000);
+            color: #00ff9d;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .status-bar {
+            background: rgba(0, 20, 40, 0.9);
+            border: 2px solid #00ff9d;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.3);
+        }
+        
+        .battery-level {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            color: #00ff9d;
+            margin: 10px 0;
+        }
+        
+        .battery-status {
+            text-align: center;
+            font-size: 18px;
+            color: #66ffcc;
+        }
+        
+        .voice-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #0055ff, #0099ff);
+            color: white;
+            border: 1px solid #00ff9d;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ff5500, #ff9900);
+        }
+        
+        .response-area {
+            background: rgba(0, 10, 30, 0.95);
+            border: 1px solid #00aaff;
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 150px;
+            margin: 20px 0;
+            color: #ffffff;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .command-list {
+            background: rgba(0, 20, 40, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            border: 1px solid #00aaff;
+        }
+        
+        .command-item {
+            padding: 8px;
+            border-bottom: 1px solid rgba(0, 170, 255, 0.3);
+            color: #88ddff;
+        }
+        
+        .battery-low {
+            color: #ff4444;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .notification-badge {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #ff4444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        @media (prefers-color-scheme: light) {
+            body {
+                background: linear-gradient(135deg, #e0f0ff, #ffffff);
+                color: #0066cc;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-badge" id="notificationBadge">!</div>
+    
+    <div class="container">
+        <div class="status-bar">
+            <h1 style="text-align: center; margin-bottom: 10px;">⚡ M.A.C. ⚡</h1>
+            <p style="text-align: center; color: #88ddff;">Mond Access Code - Web Edition</p>
+            
+            <div class="battery-level" id="batteryPercentage">--%</div>
+            <div class="battery-status" id="batteryStatus">Inatafuta betri...</div>
+            
+            <div style="text-align: center; margin-top: 10px;" id="batteryDetails"></div>
+        </div>
+        
+        <div class="voice-controls">
+            <button class="btn" id="startVoiceBtn" onclick="startVoiceRecognition()">
+                🎤 Anza Kuzungumza
+            </button>
+            <button class="btn" id="stopVoiceBtn" onclick="stopVoiceRecognition()" style="display: none;">
+                ⏹️ Acha Kusikiliza
+            </button>
+            <button class="btn" id="takePhotoBtn" onclick="takePhoto()">
+                📸 Piga Picha kwa Sauti
+            </button>
+            <button class="btn" id="checkBatteryBtn" onclick="speakBatteryLevel()">
+                🔋 Sema Kiasi cha Betri
+            </button>
+            <button class="btn btn-warning" id="installBtn" onclick="installPWA()" style="display: none;">
+                📲 Sakinisha M.A.C.
+            </button>
+        </div>
+        
+        <div class="response-area" id="responseArea">
+            <strong>M.A.C.:</strong> Habari! Mimi ni M.A.C. Web Assistant.<br>
+            Ninaweza kukusaidia kupiga picha kwa sauti na kukuambia kiasi cha betri.<br>
+            <small style="color: #88ddff;">📱 Kwa utendaji bora, sakinisha app hii kwenye simu yako.</small>
+        </div>
+        
+        <div class="command-list">
+            <h3>✅ Amri za Sauti:</h3>
+            <div class="command-item">"Piga picha" - Kupiga picha</div>
+            <div class="command-item">"Betri" / "Chaji" - Kusema kiasi cha betri</div>
+            <div class="command-item">"Habari" - Kusalimiana</div>
+            <div class="command-item">"Saa ngapi" - Kusema muda</div>
+            <div class="command-item">"Tarehe" - Kusema tarehe</div>
+        </div>
+    </div>
+    
+    <script>
+        // === M.A.C. WEB ASSISTANT ===
+        let recognition = null;
+        let isListening = false;
+        let batteryInterval = null;
+        let speechSynthesis = window.speechSynthesis;
+        let mediaStream = null;
+        
+        // === BATTERY API ===
+        async function initBatteryMonitoring() {
+            try {
+                if ('getBattery' in navigator) {
+                    const battery = await navigator.getBattery();
+                    
+                    function updateBatteryInfo() {
+                        const level = Math.round(battery.level * 100);
+                        const charging = battery.charging;
+                        
+                        document.getElementById('batteryPercentage').textContent = level + '%';
+                        
+                        let status = '';
+                        if (charging) {
+                            status = '⚡ Inachaji';
+                        } else {
+                            status = '📱 Inatumia betri';
+                        }
+                        
+                        document.getElementById('batteryStatus').textContent = status;
+                        
+                        // Ongeza details zaidi
+                        const details = `Kiwango: ${level}% | ${charging ? 'Inachaji' : 'Haichaji'}`;
+                        document.getElementById('batteryDetails').textContent = details;
+                        
+                        // Ikiwa betri iko chini, sema
+                        if (level <= 20 && !charging) {
+                            document.getElementById('batteryPercentage').classList.add('battery-low');
+                            if (level <= 15) {
+                                speakText(`Tahadhari! Betri imepungua. Asilimia ${level} tu imebaki.`);
+                            }
+                        } else {
+                            document.getElementById('batteryPercentage').classList.remove('battery-low');
+                        }
+                    }
+                    
+                    // Update mara moja
+                    updateBatteryInfo();
+                    
+                    // Listen for battery changes
+                    battery.addEventListener('levelchange', updateBatteryInfo);
+                    battery.addEventListener('chargingchange', updateBatteryInfo);
+                    
+                    // Also check periodically
+                    setInterval(updateBatteryInfo, 30000); // kila sekunde 30
+                    
+                } else {
+                    document.getElementById('batteryPercentage').textContent = '❌';
+                    document.getElementById('batteryStatus').textContent = 'Betri API haitumiki kwenye browser yako';
+                }
+            } catch (error) {
+                console.error('Battery error:', error);
+                document.getElementById('batteryPercentage').textContent = '❌';
+            }
+        }
+        
+        // === SPEAK TEXT ===
+        function speakText(text) {
+            if (!speechSynthesis) {
+                console.error('Text-to-speech not supported');
+                return;
+            }
+            
+            // Stop any ongoing speech
+            speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'sw-TZ';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            
+            // Try to find Swahili voice
+            const voices = speechSynthesis.getVoices();
+            const swahiliVoice = voices.find(voice => voice.lang.includes('sw') || voice.lang.includes('en'));
+            if (swahiliVoice) {
+                utterance.voice = swahiliVoice;
+            }
+            
+            speechSynthesis.speak(utterance);
+            
+            // Update response area
+            document.getElementById('responseArea').innerHTML += `<br><strong>M.A.C.:</strong> ${text}`;
+            document.getElementById('responseArea').scrollTop = document.getElementById('responseArea').scrollHeight;
+        }
+        
+        // === SPEAK BATTERY LEVEL ===
+        function speakBatteryLevel() {
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    const level = Math.round(battery.level * 100);
+                    const charging = battery.charging;
+                    
+                    let message = `Kiasi cha betri ni asilimia ${level}`;
+                    if (charging) {
+                        message += '. Betri inachaji.';
+                    }
+                    
+                    speakText(message);
+                });
+            } else {
+                speakText('Samahani, siwezi kupata kiasi cha betri kwenye browser yako.');
+            }
+        }
+        
+        // === VOICE RECOGNITION ===
+        function initVoiceRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Samahani, browser yako haisaidii utambuzi wa sauti. Tumia Chrome kwenye Android.');
+                return false;
+            }
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'sw-TZ,en-US'; // Swahili na English
+            
+            recognition.onstart = function() {
+                isListening = true;
+                document.getElementById('startVoiceBtn').style.display = 'none';
+                document.getElementById('stopVoiceBtn').style.display = 'block';
+                document.getElementById('responseArea').innerHTML += '<br><strong>M.A.C.:</strong> Ninasikiliza... sema sasa.';
+            };
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.toLowerCase();
+                document.getElementById('responseArea').innerHTML += `<br><strong>Wewe:</strong> ${transcript}`;
+                processVoiceCommand(transcript);
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Recognition error:', event.error);
+                document.getElementById('responseArea').innerHTML += `<br><strong>M.A.C.:</strong> Samahani, sikuelewa. Tafadhali jaribu tena.`;
+                stopVoiceRecognition();
+            };
+            
+            recognition.onend = function() {
+                stopVoiceRecognition();
+            };
+            
+            return true;
+        }
+        
+        function startVoiceRecognition() {
+            if (!recognition) {
+                if (!initVoiceRecognition()) {
+                    return;
+                }
+            }
+            
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('Start error:', error);
+                // Reinitialize and try again
+                recognition = null;
+                initVoiceRecognition();
+                recognition.start();
+            }
+        }
+        
+        function stopVoiceRecognition() {
+            if (recognition) {
+                recognition.stop();
+            }
+            isListening = false;
+            document.getElementById('startVoiceBtn').style.display = 'block';
+            document.getElementById('stopVoiceBtn').style.display = 'none';
+        }
+        
+        // === PROCESS VOICE COMMANDS ===
+        function processVoiceCommand(command) {
+            if (command.includes('piga picha') || command.includes('piga photo') || command.includes('take photo')) {
+                takePhoto();
+            } else if (command.includes('betri') || command.includes('chaji') || command.includes('battery')) {
+                speakBatteryLevel();
+            } else if (command.includes('habari') || command.includes('hello') || command.includes('hi')) {
+                speakText('Habari! M.A.C. nipo hapa. Ninaweza kusaidiaje?');
+            } else if (command.includes('saa ngapi') || command.includes('time')) {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('sw-TZ');
+                speakText(`Sasa ni saa ${timeString}`);
+            } else if (command.includes('tarehe') || command.includes('date')) {
+                const now = new Date();
+                const dateString = now.toLocaleDateString('sw-TZ', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                speakText(`Leo ni ${dateString}`);
+            } else {
+                speakText(`Nimesikia: "${command}". Samahani, sijajifunza amri hiyo bado.`);
+            }
+            
+            // Anza kusikiliza tena baada ya sekunde chache
+            setTimeout(() => {
+                if (!isListening) {
+                    startVoiceRecognition();
+                }
+            }, 2000);
+        }
+        
+        // === TAKE PHOTO ===
+        async function takePhoto() {
+            try {
+                speakText('Naomba ruhusa ya kamera kupiga picha.');
+                
+                // Try to access camera
+                mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' }, // Rear camera
+                    audio: false 
+                });
+                
+                // Create video element to show preview
+                const video = document.createElement('video');
+                video.srcObject = mediaStream;
+                video.setAttribute('playsinline', true);
+                video.style.position = 'fixed';
+                video.style.top = '0';
+                video.style.left = '0';
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'cover';
+                video.style.zIndex = '1000';
+                video.style.backgroundColor = 'black';
+                document.body.appendChild(video);
+                
+                // Add capture button
+                const captureBtn = document.createElement('button');
+                captureBtn.textContent = '📸 PIGA PICHA';
+                captureBtn.style.position = 'fixed';
+                captureBtn.style.bottom = '30px';
+                captureBtn.style.left = '50%';
+                captureBtn.style.transform = 'translateX(-50%)';
+                captureBtn.style.padding = '20px 40px';
+                captureBtn.style.fontSize = '20px';
+                captureBtn.style.background = '#00ff9d';
+                captureBtn.style.color = '#000';
+                captureBtn.style.border = 'none';
+                captureBtn.style.borderRadius = '50px';
+                captureBtn.style.zIndex = '1001';
+                captureBtn.style.boxShadow = '0 0 20px rgba(0,255,157,0.5)';
+                document.body.appendChild(captureBtn);
+                
+                // Add close button
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = '✖️ FUNGA';
+                closeBtn.style.position = 'fixed';
+                closeBtn.style.top = '20px';
+                closeBtn.style.right = '20px';
+                closeBtn.style.padding = '10px 20px';
+                closeBtn.style.background = '#ff4444';
+                closeBtn.style.color = '#fff';
+                closeBtn.style.border = 'none';
+                closeBtn.style.borderRadius = '10px';
+                closeBtn.style.zIndex = '1001';
+                document.body.appendChild(closeBtn);
+                
+                // Play video
+                await video.play();
+                
+                // Capture when button clicked
+                captureBtn.onclick = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.download = `MAC_Photo_${new Date().toISOString()}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    speakText('Picha imehifadhiwa.');
+                    
+                    // Flash effect
+                    document.body.style.backgroundColor = 'white';
+                    setTimeout(() => {
+                        document.body.style.backgroundColor = '';
+                    }, 200);
+                };
+                
+                // Close when close button clicked
+                closeBtn.onclick = function() {
+                    mediaStream.getTracks().forEach(track => track.stop());
+                    video.remove();
+                    captureBtn.remove();
+                    closeBtn.remove();
+                    speakText('Kamera imefungwa.');
+                };
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                speakText('Samahani, siwezi kufungua kamera. Hakikisha umeruhusu ruhusa ya kamera.');
+            }
+        }
+        
+        // === PWA INSTALLATION ===
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').style.display = 'block';
+        });
+        
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {console.log('User accepted installation');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installBtn').style.display = 'none';
+                });
+            }
+        }
+        
+        // === NOTIFICATION SIMULATION ===
+        // Hii inaiga arifa - kwenye website halisi, hatuwezi kupata arifa za simu
+        function simulateNotification() {
+            setInterval(() => {
+                const random = Math.random();
+                if (random < 0.1) { // 10% chance every interval
+                    const names = ['Mama', 'Baba', 'Rafiki', 'Kaka', 'Dada', 'Ofisi'];
+                    const randomName = names[Math.floor(Math.random() * names.length)];
+                    
+                    document.getElementById('notificationBadge').style.display = 'block';
+                    document.getElementById('notificationBadge').textContent = '1';
+                    
+                    speakText(`Ujumbe umetoka kwa ${randomName}`);
+                    
+                    setTimeout(() => {
+                        document.getElementById('notificationBadge').style.display = 'none';
+                    }, 5000);
+                }
+            }, 30000); // Check every 30 seconds
+        }
+        
+        // === KEEP SCREEN ON (as much as possible) ===
+        function keepScreenOn() {
+            // Hii inajaribu kuweka screen ikiwa imewasha kwa kutumia NoSleep.js
+            // Lakini browser inaweza kuifunga baada ya muda
+        }
+        
+        // === INITIALIZE EVERYTHING ===
+        document.addEventListener('DOMContentLoaded', function() {
+            // Anza battery monitoring
+            initBatteryMonitoring();
+            
+            // Sema mara moja
+            setTimeout(() => {
+                if ('getBattery' in navigator) {
+                    navigator.getBattery().then(battery => {
+                        const level = Math.round(battery.level * 100);
+                        speakText(`Karibu M.A.C. Kiasi cha betri ni asilimia ${level}`);
+                    });
+                } else {
+                    speakText('Karibu M.A.C.');
+                }
+            }, 1000);
+            
+            // Anza voice recognition automatically
+            setTimeout(() => {
+                startVoiceRecognition();
+            }, 3000);
+            
+            // Simulate notifications for demo
+            simulateNotification();
+            
+            // Try to keep connection alive
+            setInterval(() => {
+                if (!isListening && recognition) {
+                    startVoiceRecognition();
+                }
+            }, 10000);
+        });
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', function() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+            if (recognition) {
+                recognition.stop();
+            }
+        });
+    </script>
+</body>
+</html>

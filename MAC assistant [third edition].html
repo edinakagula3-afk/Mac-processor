@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAC OFFLINE - Msaidizi wa Masomo</title>
+    <style>
+        /* STYLE ZOTE ZIMEHIFADHIWA NDANI - HAKUNA CALL ZA ONLINE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif; /* Fonts za offline */
+            background: linear-gradient(145deg, #1a365d 0%, #2d3748 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 28px 24px;
+            text-align: center;
+            border-bottom: 4px solid #3498db;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 0 #3498db;
+        }
+
+        .header p {
+            color: #b0c4de;
+            font-size: 0.95rem;
+        }
+
+        .badge-offline {
+            background: #27ae60;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-offline::before {
+            content: "●";
+            margin-right: 5px;
+            font-size: 0.9rem;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .chat-area {
+            padding: 24px;
+            background: #f8fafc;
+        }
+
+        .message-box {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            min-height: 140px;
+        }
+
+        #macResponse {
+            font-size: 1.25rem;
+            color: #1e293b;
+            line-height: 1.7;
+            margin: 0;
+            word-wrap: break-word;
+        }
+
+        #macResponse .highlight {
+            color: #3498db;
+            font-weight: 700;
+            background: #ebf8ff;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .input-container {
+            background: white;
+            border-radius: 100px;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            padding: 4px 4px 4px 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+
+        .input-container:focus-within {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        #userInput {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            padding: 14px 0;
+            background: transparent;
+            font-family: inherit;
+        }
+
+        #userInput::placeholder {
+            color: #94a3b8;
+        }
+
+        .mic-btn {
+            background: #2c3e50;
+            border: none;
+            border-radius: 50%;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .mic-btn:hover {
+            background: #3498db;
+            transform: scale(1.05);
+        }
+
+        .mic-btn.recording {
+            background: #e53e3e;
+            animation: pulse 1.2s infinite;
+        }
+
+        .mic-btn.listening {
+            background: #27ae60;
+            animation: pulseGreen 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.6); }
+            70% { box-shadow: 0 0 0 12px rgba(229, 62, 62, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0); }
+        }
+
+        @keyframes pulseGreen {
+            0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.6); }
+            70% { box-shadow: 0 0 0 12px rgba(39, 174, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+        }
+
+        .mic-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: white;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .send-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            border: 1px solid #2980b9;
+        }
+
+        .send-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .clear-btn {
+            background: #e2e8f0;
+            color: #475569;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: #cbd5e1;
+        }
+
+        .status-area {
+            margin-top: 20px;
+            padding: 14px;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .status-led {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+
+        .status-led.green {
+            background: #27ae60;
+            box-shadow: 0 0 10px #27ae60;
+        }
+
+        .status-led.red {
+            background: #e53e3e;
+            box-shadow: 0 0 10px #e53e3e;
+        }
+
+        .status-led.blue {
+            background: #3498db;
+            box-shadow: 0 0 10px #3498db;
+        }
+
+        .status-text {
+            color: #334155;
+            font-size: 0.95rem;
+        }
+
+        .subjects {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+
+        .subject-tag {
+            background: #e2e8f0;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .offline-note {
+            background: #fef9e7;
+            border-left: 4px solid #f1c40f;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-size: 0.9rem;
+            color: #7d5d23;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .offline-note::before {
+            content: "📴";
+            font-size: 1.2rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 16px 24px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 0.8rem;
+            border-top: 1px solid #cbd5e1;
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MAC</h1>
+            <p>Msaidizi wa Masomo • Chemistry • Physics • Mathematics</p>
+            <div class="badge-offline">OFFLINE MODE - HAITAJI INTERNET</div>
+        </div>
+
+        <div class="chat-area">
+            <!-- Response Box -->
+            <div class="message-box">
+                <p id="macResponse">👋 <span class="highlight">Karibu!</span> Bonyeza maikrofoni na useme "MAC", au andika hapa chini.</p>
+            </div>
+
+            <!-- Input Section -->
+            <div class="input-container">
+                <input type="text" id="userInput" placeholder="Andika 'MAC' hapa..." autocomplete="off">
+                <button class="mic-btn" id="micButton" title="Bonyeza kuzungumza (OFFLINE)">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions">
+                <button class="send-btn" id="sendButton">✓ Tuma "MAC"</button>
+                <button class="clear-btn" id="clearButton">✗ Futa</button>
+            </div>
+
+            <!-- Status Area (Live Feed) -->
+            <div class="status-area">
+                <div class="status-row">
+                    <div class="status-led" id="micLed"></div>
+                    <span class="status-text" id="micStatus">Maikrofoni iko tayari (OFFLINE)</span>
+                </div>
+                <div class="status-row">
+                    <div class="status-led" id="voiceLed"></div>
+                    <span class="status-text" id="voiceStatus">Subiri amri ya "MAC"</span>
+                </div>
+            </div>
+
+            <!-- Subjects -->
+            <div class="subjects">
+                <span class="subject-tag">🧪 CHEMISTRY</span>
+                <span class="subject-tag">⚡ PHYSICS</span>
+                <span class="subject-tag">📊 MATHEMATICS</span>
+            </div>
+
+            <!-- OFFLINE Note -->
+            <div class="offline-note">
+                <span>Hii website inafanya kazi <strong>BILA INTERNET</strong>! Sauti na maandishi yote yamehifadhiwa ndani.</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            ⚡ MAC OFFLINE v1.0 • Inafanya kazi bila internet • Bonyeza maikrofoni useme "MAC"
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ============ ELEMENTS ZOTE ============
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            const clearButton = document.getElementById('clearButton');
+            const micButton = document.getElementById('micButton');
+            const macResponse = document.getElementById('macResponse');
+            const micLed = document.getElementById('micLed');
+            const micStatus = document.getElementById('micStatus');
+            const voiceLed = document.getElementById('voiceLed');
+            const voiceStatus = document.getElementById('voiceStatus');
+
+            // ============ STATE VARIABLES ============
+            let isRecording = false;
+            let recognition = null;
+            let synthesis = window.speechSynthesis;
+            let recognitionActive = false;
+
+            // ============ SETUP YA SPEECH RECOGNITION (OFFLINE COMPATIBLE) ============
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                // Hizi settings zinafanya kazi OFFLINE kwenye browser zinazotumia API za offline
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+                recognition.lang = 'en-US'; // En-US inafanya kazi offline kwenye Chrome
+                
+                // SUCCESS - Aliposikia vizuri
+                recognition.onresult = (event) => {
+                    const spokenText = event.results[0][0].transcript.trim();
+                    console.log('💬 Ulisema:', spokenText);
+                    
+                    // Weka kwenye input
+                    userInput.value = spokenText;
+                    
+                    // Update LED
+                    voiceLed.className = 'status-led green';
+                    voiceStatus.textContent = '✓ Nimesikia: "' + spokenText + '"';
+                    
+                    // Process
+                    processInput(spokenText);
+                    
+                    // Stop recording
+                    stopRecording(true);
+                };
+
+                // ERROR - Kama hakusikia vizuri
+                recognition.onerror = (event) => {
+                    console.log('🎤 Hitilafu ya sauti:', event.error);
+                    
+                    if (event.error === 'no-speech') {
+                        voiceStatus.textContent = '✗ Hakuna sauti - jaribu tena';
+                        voiceLed.className = 'status-led';
+                    } else if (event.error === 'not-allowed') {
+                        micStatus.textContent = '✗ Ruhusu maikrofoni kwenye browser';
+                        micLed.className = 'status-led red';
+                    }
+                    
+                    stopRecording(false);
+                };
+
+                // START - Wakati anaanza kusikiliza
+                recognition.onstart = () => {
+                    console.log('🎤 Naanza kusikiliza...');
+                    recognitionActive = true;
+                    isRecording = true;
+                    
+                    micLed.className = 'status-led green';
+                    micStatus.textContent = '✓ Maikrofoni imewashwa - SEMA "MAC"';
+                    
+                    voiceLed.className = 'status-led blue';
+                    voiceStatus.textContent = '🎤 Nakusikiliza... sema "MAC"';
+                    
+                    micButton.classList.add('listening');
+                };
+
+                // END - Wakati anaacha kusikiliza
+                recognition.onend = () => {
+                    console.log('🎤 Nimeacha kusikiliza');
+                    recognitionActive = false;
+                    
+                    if (isRecording) {
+                        // Kama ilisimama peke yake bila kupata sauti
+                        voiceStatus.textContent = '⏱ Muda umeisha - bonyeza tena';
+                        voiceLed.className = 'status-led';
+                    }
+                    
+                    stopRecording(false);
+                };
+            } else {
+                // Browser haina support
+                micButton.style.opacity = '0.4';
+                micButton.style.cursor = 'not-allowed';
+                micStatus.textContent = '✗ Browser haina support ya sauti';
+                micLed.className = 'status-led red';
+            }
+
+            // ============ FUNCTIONS ============
+
+            // Stop Recording
+            function stopRecording(success = false) {
+                if (recognition && recognitionActive) {
+                    try {
+                        recognition.stop();
+                    } catch(e) {
+                        console.log('Stop error:', e);
+                    }
+                }
+                
+                isRecording = false;
+                recognitionActive = false;
+                
+                micButton.classList.remove('recording', 'listening');
+                
+                if (!success) {
+                    micLed.className = 'status-led';
+                    micStatus.textContent = 'Maikrofoni iko tayari';
+                }
+            }
+
+            // Start Recording
+            function startRecording() {
+                if (!recognition) {
+                    alert('Samahani, browser yako haina uwezo wa sauti. Tumia Google Chrome au Edge.');
+                    return;
+                }
+
+                try {
+                    // Angalia ruhusa ya maikrofoni
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then((stream) => {
+                            // Funga stream baada ya kupata ruhusa
+                            stream.getTracks().forEach(track => track.stop());
+                            
+                            // Anza recognition
+                            recognition.start();
+                            
+                            // Auto-stop baada ya sekunde 4 kama hakuna sauti
+                            setTimeout(() => {
+                                if (isRecording && recognitionActive) {
+                                    console.log('Auto-stop timeout');
+                                    stopRecording(false);
+                                    voiceStatus.textContent = '⏰ Muda umeisha - bonyeza tena';
+                                    voiceLed.className = 'status-led';
+                                }
+                            }, 4000);
+                            
+                        })
+                        .catch((err) => {
+                            console.error('Mic error:', err);
+                            alert('Tafadhali ruhusu maikrofoni ili kuzungumza. Bonyeza icon ya kamera kwenye address bar.');
+                            micLed.className = 'status-led red';
+                            micStatus.textContent = '✗ Ruhusa ya maikrofoni inahitajika';
+                        });
+                } catch (e) {
+                    console.error('Fatal:', e);
+                }
+            }
+
+            // Process Input - KAZI KUU YA OFFLINE
+            function processInput(text) {
+                if (!text) return;
+                
+                const cleanText = text.trim().toUpperCase();
+                console.log('📝 Processing:', cleanText);
+                
+                // Check if it's exactly "MAC" (in any form)
+                // Remove punctuation and extra characters
+                const simpleText = cleanText.replace(/[.,!?;:'"\-_]/g, '').trim();
+                
+                if (simpleText === 'MAC' || cleanText === 'MAC') {
+                    // OFFLINE RESPONSE - Imehifadhiwa ndani
+                    const responseMessage = 'habari ninaitwa MAC , ninaweza kukusaidia kufanya maswali ya chemistry, physics na mathematics tu , tafadhali sema au andika swali lako';
+                    
+                    // Show response
+                    macResponse.innerHTML = `🤖 <span class="highlight">${responseMessage}</span>`;
+                    
+                    // Speak response (OFFLINE speech synthesis - inafanya kazi bila internet!)
+                    if (synthesis) {
+                        try {
+                            // Cancel any ongoing speech
+                            synthesis.cancel();
+                            
+                            const utterance = new SpeechSynthesisUtterance(responseMessage);
+                            utterance.lang = 'sw-TZ';
+                            utterance.rate = 0.9;
+                            utterance.pitch = 1;
+                            utterance.volume = 1;
+                            
+                            // Get available voices (offline voices)
+                            window.speechSynthesis.onvoiceschanged = () => {
+                                const voices = synthesis.getVoices();
+                                const swahiliVoice = voices.find(v => v.lang.includes('sw') || v.lang.includes('en'));
+                                if (swahiliVoice) utterance.voice = swahiliVoice;
+                                synthesis.speak(utterance);
+                            };
+                            
+                            // If voices already loaded
+                            if (synthesis.getVoices().length > 0) {
+                                const voices = synthesis.getVoices();
+                                const swahiliVoice = voices.find(v => v.lang.includes('sw') || v.lang.includes('en'));
+                                if (swahiliVoice) utterance.voice = swahiliVoice;
+                                synthesis.speak(utterance);
+                            } else {
+                                synthesis.speak(utterance);
+                            }
+                            
+                        } catch(e) {
+                            console.log('Speech error:', e);
+                        }
+                    }
+                    
+                    // Update status
+                    voiceLed.className = 'status-led green';
+                    voiceStatus.textContent = '✓ MAC amejibu!';
+                    
+                } else if (cleanText !== '') {
+                    // Not MAC
+                    macResponse.innerHTML = `❌ Ulisema "<span class="highlight">${text}</span>" - lakini nahitaji neno "<span class="highlight">MAC</span>" pekee. Jaribu tena!`;
+                    
+                    voiceLed.className = 'status-led red';
+                    voiceStatus.textContent = '✗ Sio "MAC" - jaribu tena';
+                }
+            }
+
+            // Clear input
+            function clearAll() {
+                userInput.value = '';
+                macResponse.innerHTML = '👋 <span class="highlight">Karibu!</span> Bonyeza maikrofoni na useme "MAC", au andika hapa chini.';
+                voiceLed.className = 'status-led';
+                voiceStatus.textContent = 'Subiri amri ya "MAC"';
+                
+                // Stop recording if active
+                if (isRecording) {
+                    stopRecording(false);
+                }
+                
+                userInput.focus();
+            }
+
+            // ============ EVENT LISTENERS ============
+
+            // MIC BUTTON
+            micButton.addEventListener('click', () => {
+                if (isRecording) {
+                    stopRecording(false);
+                } else {
+                    startRecording();
+                }
+            });
+
+            // SEND BUTTON
+            sendButton.addEventListener('click', () => {
+                const inputText = userInput.value.trim();
+                if (inputText) {
+                    processInput(inputText);
+                    userInput.value = ''; // Clear after send
+                } else {
+                    macResponse.innerHTML = '⚠️ <span class="highlight">Tafadhali andika au sema "MAC"</span>';
+                }
+            });
+
+            // CLEAR BUTTON
+            clearButton.addEventListener('click', clearAll);
+
+            // ENTER KEY
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const inputText = userInput.value.trim();
+                    if (inputText) {
+                        processInput(inputText);
+                        userInput.value = '';
+                    }
+                }
+            });
+
+            // Clean up
+            window.addEventListener('beforeunload', () => {
+                if (recognition && recognitionActive) {
+                    try {
+                        recognition.abort();
+                    } catch(e) {}
+                }
+                if (synthesis && synthesis.speaking) {
+                    synthesis.cancel();
+                }
+            });
+
+            // Focus on load
+            window.addEventListener('load', () => {
+                userInput.focus();
+                
+                // Check if browser supports offline speech
+                if (!recognition) {
+                    micStatus.textContent = '✗ Tumia Chrome/Edge kwa sauti';
+                }
+            });
+
+        })();
+    </script>
+</body>
+</html>

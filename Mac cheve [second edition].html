@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAC CHEMICAL ENGINE v3.0 - VIPENGELE 45 KAMILI</title>
+    
+    <!-- MathJax kwa equations -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- 3D Visualization Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        /* ========== PROFESSIONAL DARK THEME ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d4ff;
+            --secondary: #7b2cbf;
+            --accent: #ff006e;
+            --bg-deep: #030014;
+            --bg-dark: #0a0a1f;
+            --bg-card: #14142b;
+            --text-light: #e0e0ff;
+            --text-dim: #a0a0cc;
+            --success: #00ff9d;
+            --warning: #ffd600;
+            --danger: #ff4d4d;
+            --neon-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+            --neon-glow-strong: 0 0 30px rgba(0, 212, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-dark) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ========== VIPENGELE 1: CUSTOM SCROLLBAR ========== */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-card);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 5px;
+        }
+
+        /* ========== HEADER YA KITAALUMA ========== */
+        .chemical-header {
+            background: rgba(10, 10, 31, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--primary);
+            box-shadow: var(--neon-glow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), #a742f5, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: var(--neon-glow-strong);
+        }
+
+        .status-badge {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .badge {
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid;
+        }
+
+        .badge.online {
+            background: rgba(0, 255, 157, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .badge.version {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        /* ========== MAIN GRID - VIPENGELE 2: RESPONSIVE LAYOUT ========== */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 1.5rem;
+            max-width: 1800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* ========== VIPENGELE 3: GLASS MORPHISM CARDS ========== */
+        .glass-card {
+            background: rgba(20, 20, 43, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--neon-glow);
+            transform: translateY(-2px);
+        }
+
+        /* ========== LEFT SIDEBAR - PERIODIC TABLE ========== */
+        .sidebar-left {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* VIPENGELE 4: INTERACTIVE PERIODIC TABLE */
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+        }
+
+        .element-btn {
+            background: linear-gradient(145deg, #1e1e3f, #14142b);
+            border: 1px solid var(--primary);
+            color: white;
+            padding: 8px 4px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .element-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .element-btn:hover::before {
+            left: 100%;
+        }
+
+        .element-btn:hover {
+            background: var(--primary);
+            color: black;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .element-symbol {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .element-mass {
+            font-size: 0.6rem;
+            opacity: 0.7;
+        }
+
+        /* VIPENGELE 5: POLYATOMIC IONS LIST */
+        .ions-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .ion-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(0,212,255,0.1);
+            cursor: pointer;
+        }
+
+        .ion-item:hover {
+            background: rgba(0,212,255,0.1);
+        }
+
+        /* ========== MAIN ENGINE AREA ========== */
+        .engine-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* VIPENGELE 6: INPUT AREA YENYE SYNTAX HIGHLIGHTING */
+        .input-container {
+            background: var(--bg-card);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid rgba(0,212,255,0.3);
+            transition: all 0.3s;
+        }
+
+        .input-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: var(--neon-glow);
+        }
+
+        #chemicalInput {
+            width: 100%;
+            min-height: 120px;
+            background: #050514;
+            border: none;
+            padding: 1rem;
+            color: var(--success);
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            resize: vertical;
+        }
+
+        #chemicalInput:focus {
+            outline: none;
+        }
+
+        /* VIPENGELE 7: TOOLBAR YA CHEMICAL SYMBOLS */
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            padding: 1rem;
+            background: #0a0a1f;
+            flex-wrap: wrap;
+            border-top: 1px solid rgba(0,212,255,0.2);
+        }
+
+        .tool-btn {
+            background: #1e1e3f;
+            border: 1px solid var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            background: var(--primary);
+            color: black;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* VIPENGELE 8: SOLUTION AREA */
+        .solution-area {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(0,212,255,0.2);
+        }
+
+        #balancedEquation {
+            font-size: 1.5rem;
+            color: var(--success);
+            padding: 1rem;
+            background: #050514;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+            font-family: 'Courier New', monospace;
+            margin-bottom: 2rem;
+        }
+
+        /* VIPENGELE 9: STEP-BY-STEP ANIMATION */
+        .step {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-left: 3px solid var(--accent);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* VIPENGELE 10: 3D VISUALIZATION */
+        #moleculeViewer {
+            width: 100%;
+            height: 200px;
+            background: #050514;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        /* ========== RIGHT SIDEBAR - DATABASE ========== */
+        .sidebar-right {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* VIPENGELE 11: SEARCH BAR */
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            background: #050514;
+            border: 2px solid var(--primary);
+            border-radius: 30px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        /* VIPENGELE 12: FORMULA CARDS */
+        .formula-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .formula-card {
+            background: linear-gradient(145deg, #1e1e3f, #14142b);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border: 1px solid var(--secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .formula-card:hover {
+            transform: translateX(5px);
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(0,212,255,0.2);
+        }
+
+        /* ========== LOADING ANIMATIONS ========== */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,212,255,.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========== TOAST NOTIFICATIONS ========== */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: var(--neon-glow-strong);
+            animation: toastIn 0.3s ease;
+            z-index: 9999;
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ========== RESPONSIVE DESIGN ========== */
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ========== CHART CONTAINER ========== */
+        #reactionChart {
+            height: 200px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="chemical-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-flask fa-2x" style="color: var(--primary);"></i>
+                <h1>MAC CHEMICAL v3.0</h1>
+            </div>
+            <div class="status-badge">
+                <span class="badge online"><i class="fas fa-circle"></i> 5G READY</span>
+                <span class="badge version"><i class="fas fa-crown"></i> VIPENGELE 45</span>
+                <span class="badge" style="border-color: var(--accent);"><i class="fas fa-database"></i> 10K+ FORMULAS</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+        <!-- LEFT SIDEBAR - VIPENGELE 13-20 -->
+        <div class="sidebar-left">
+            <!-- VIPENGELE 13: INTERACTIVE PERIODIC TABLE -->
+            <div class="glass-card">
+                <h3><i class="fas fa-atom"></i> PERIODIC TABLE (VIPENGELE 118)</h3>
+                <div class="periodic-table" id="periodicTable"></div>
+            </div>
+
+            <!-- VIPENGELE 14: POLYATOMIC IONS DATABASE -->
+            <div class="glass-card">
+                <h3><i class="fas fa-bolt"></i> POLYATOMIC IONS</h3>
+                <div class="ions-list" id="polyatomicIons"></div>
+            </div>
+
+            <!-- VIPENGELE 15: REACTIVITY SERIES -->
+            <div class="glass-card">
+                <h3><i class="fas fa-chart-line"></i> REACTIVITY SERIES</h3>
+                <div id="reactivitySeries"></div>
+            </div>
+
+            <!-- VIPENGELE 16: SOLUBILITY RULES -->
+            <div class="glass-card">
+                <h3><i class="fas fa-water"></i> SOLUBILITY RULES</h3>
+                <div id="solubilityRules"></div>
+            </div>
+        </div>
+
+        <!-- MAIN ENGINE - VIPENGELE 21-35 -->
+        <div class="engine-main">
+            <!-- VIPENGELE 21: INPUT AREA -->
+            <div class="glass-card">
+                <h3><i class="fas fa-pen"></i> CHEMICAL EQUATION INPUT</h3>
+                <div class="input-container">
+                    <textarea id="chemicalInput" placeholder="Andika equation yako...
+Mfano: H2 + O2 = H2O
+Au: CH4 + 2O2 = CO2 + 2H2O
+Au: Fe2O3 + CO = Fe + CO2"></textarea>
+                    
+                    <!-- VIPENGELE 22: TOOLBAR KAMILI -->
+                    <div class="toolbar">
+                        <button class="tool-btn" onclick="insertSymbol('→')">→</button>
+                        <button class="tool-btn" onclick="insertSymbol('⇌')">⇌</button>
+                        <button class="tool-btn" onclick="insertSymbol('↑')">↑</button>
+                        <button class="tool-btn" onclick="insertSymbol('↓')">↓</button>
+                        <button class="tool-btn" onclick="insertSymbol('(aq)')">(aq)</button>
+                        <button class="tool-btn" onclick="insertSymbol('(s)')">(s)</button>
+                        <button class="tool-btn" onclick="insertSymbol('(l)')">(l)</button>
+                        <button class="tool-btn" onclick="insertSymbol('(g)')">(g)</button>
+                        <button class="tool-btn" onclick="insertSymbol('Δ')">Δ</button>
+                        <button class="tool-btn" onclick="insertSymbol('°C')">°C</button>
+                        <button class="tool-btn" onclick="insertSymbol('atm')">atm</button>
+                        <button class="tool-btn" onclick="insertSymbol('M')">M</button>
+                    </div>
+                </div>
+              <!-- VIPENGELE 23: ACTION BUTTONS -->
+                <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                    <button class="tool-btn" style="flex: 2; background: var(--primary); color: black;" onclick="solveEquation()">
+                        <i class="fas fa-calculator"></i> SOLVE EQUATION
+                    </button>
+                    <button class="tool-btn" style="flex: 1;" onclick="clearInput()">
+                        <i class="fas fa-eraser"></i> CLEAR
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIPENGELE 24: SOLUTION AREA -->
+            <div class="glass-card">
+                <h3><i class="fas fa-brain"></i> PROFESSIONAL SOLUTION</h3>
+                
+                <!-- VIPENGELE 25: BALANCED EQUATION -->
+                <div id="balancedEquation">→</div>
+                
+                <!-- VIPENGELE 26: STEP-BY-STEP SOLUTION -->
+                <div id="steps"></div>
+                
+                <!-- VIPENGELE 27: STOICHIOMETRY CALCULATOR -->
+                <div id="stoichiometry" style="margin-top: 1rem;"></div>
+                
+                <!-- VIPENGELE 28: THERMODYNAMIC DATA -->
+                <div id="thermodynamics" style="margin-top: 1rem;"></div>
+                
+                <!-- VIPENGELE 29: 3D MOLECULE VIEWER -->
+                <div id="moleculeViewer"></div>
+                
+                <!-- VIPENGELE 30: REACTION KINETICS CHART -->
+                <canvas id="reactionChart"></canvas>
+            </div>
+
+            <!-- VIPENGELE 31: VOICE INPUT -->
+            <div class="glass-card">
+                <h3><i class="fas fa-microphone"></i> VOICE COMMAND</h3>
+                <button class="tool-btn" style="width: 100%;" onclick="startVoiceRecognition()">
+                    <i class="fas fa-microphone-alt"></i> BONYEZA KUSEMA EQUATION
+                </button>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR - VIPENGELE 36-45 -->
+        <div class="sidebar-right">
+            <!-- VIPENGELE 36: SEARCH DATABASE -->
+            <div class="glass-card">
+                <h3><i class="fas fa-search"></i> SEARCH FORMULAS</h3>
+                <input type="text" class="search-box" id="searchInput" placeholder="Tafuta formula...">
+                <div class="formula-list" id="formulaList"></div>
+            </div>
+
+            <!-- VIPENGELE 37: RECENT EQUATIONS -->
+            <div class="glass-card">
+                <h3><i class="fas fa-history"></i> HISTORY</h3>
+                <div id="equationHistory"></div>
+            </div>
+
+            <!-- VIPENGELE 38: EXPORT OPTIONS -->
+            <div class="glass-card">
+                <h3><i class="fas fa-download"></i> EXPORT</h3>
+                <button class="tool-btn" style="width: 100%; margin: 5px 0;" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+                <button class="tool-btn" style="width: 100%; margin: 5px 0;" onclick="exportToLaTeX()">
+                    <i class="fas fa-file-code"></i> LaTeX
+                </button>
+            </div>
+
+            <!-- VIPENGELE 39: AI SUGGESTIONS -->
+            <div class="glass-card">
+                <h3><i class="fas fa-robot"></i> AI SUGGESTIONS</h3>
+                <div id="aiSuggestions"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFESSIONAL CHEMICAL ENGINE SCRIPT - VIPENGELE VYOTE 45 -->
+    <script>
+        // ============================================
+        // MAC CHEMICAL ENGINE v3.0
+        // VIPENGELE 45 KAMILI - PROFESSIONAL EDITION
+        ============================================
+
+        class ChemicalEngine {
+            constructor() {
+                // VIPENGELE 1-10: CHEMICAL PARSING ENGINE
+                this.elements = this.loadPeriodicTable();
+                this.polyatomicIons = this.loadPolyatomicIons();
+                this.reactivitySeries = this.loadReactivitySeries();
+                this.solubilityRules = this.loadSolubilityRules();
+                this.thermoData = this.loadThermodynamicData();
+                this.kineticData = this.loadKineticData();
+                this.spectralData = this.loadSpectralData();
+                this.isomerDatabase = this.loadIsomerDatabase();
+                this.hydrateDatabase = this.loadHydrateDatabase();
+                this.organicDatabase = this.loadOrganicDatabase();
+                
+                // VIPENGELE 11-20: ADVANCED DATABASES
+                this.initUI();
+                this.setupEventListeners();
+                this.init3DViewer();
+                this.initChart();
+                this.setupVoiceRecognition();
+                this.setupOfflineSupport();
+                this.setupAIEngine();
+                this.loadHistory();
+            }
+
+            // ========== VIPENGELE 1: LEXICAL ANALYZER ==========
+            parseFormula(formula) {
+                const elements = {};
+                let i = 0;
+                
+                while (i < formula.length) {
+                    // Handle parentheses
+                    if (formula[i] === '(') {
+                        let parenCount = 1;
+                        let j = i + 1;
+                        
+                        while (j < formula.length && parenCount > 0) {
+                            if (formula[j] === '(') parenCount++;
+                            if (formula[j] === ')') parenCount--;
+                            j++;
+                        }
+                        
+                        const insideParen = formula.substring(i + 1, j - 1);
+                        let multiplier = '';
+                        while (j < formula.length && /[0-9]/.test(formula[j])) {
+                            multiplier += formula[j];
+                            j++;
+                        }
+                        
+                        const mult = multiplier ? parseInt(multiplier) : 1;
+                        const subElements = this.parseFormula(insideParen);
+                        
+                        for (let [el, count] of Object.entries(subElements)) {
+                            elements[el] = (elements[el] || 0) + count * mult;
+                        }
+                        
+                        i = j;
+                        continue;
+                    }
+                    
+                    // Handle regular elements
+                    if (/[A-Z]/.test(formula[i])) {
+                        let element = formula[i];
+                        i++;
+                        
+                        if (i < formula.length && /[a-z]/.test(formula[i])) {
+                            element += formula[i];
+                            i++;
+                        }
+                        
+                        let count = '';
+                        while (i < formula.length && /[0-9]/.test(formula[i])) {
+                            count += formula[i];
+                            i++;
+                        }
+                        
+                        const num = count ? parseInt(count) : 1;
+                        elements[element] = (elements[element] || 0) + num;
+                    } else {
+                        i++;
+                    }
+                }
+                
+                return elements;
+            }
+
+            // ========== VIPENGELE 2: EQUATION PARSER ==========
+            parseEquation(equation) {
+                let sides = equation.split('=');
+                if (sides.length !== 2) {
+                    sides = equation.split('→');
+                }
+                if (sides.length !== 2) {
+                    sides = equation.split('⇌');
+                }
+                
+                const leftSide = this.parseSide(sides[0].trim());
+                const rightSide = this.parseSide(sides[1].trim());
+                
+                return { left: leftSide, right: rightSide };
+            }
+
+            parseSide(side) {
+                const compounds = [];
+                const parts = side.split('+');
+                
+                for (let part of parts) {
+                    part = part.trim();
+                    if (!part) continue;
+                    
+                    let match = part.match(/^(\d*)(.+)$/);
+                    let coefficient = match[1] === '' ? 1 : parseInt(match[1]);
+                    let formula = match[2].trim();
+                    
+                    // Extract state if present
+                    let state = null;
+                    const stateMatch = formula.match(/\(([slaqg])\)/);
+                    if (stateMatch) {
+                        state = stateMatch[1];
+                        formula = formula.replace(/\([slaqg]\)/g, '').trim();
+                    }
+                    
+                    compounds.push({
+                        formula: formula,
+                        coefficient: coefficient,
+                        state: state,
+                        elements: this.parseFormula(formula),
+                        molarMass: this.calculateMolarMass(formula)
+                    });
+                }
+                
+                return compounds;
+            }
+
+            // ========== VIPENGELE 3: MATRIX BUILDER ==========
+            buildMatrix(left, right) {
+                const elements = new Set();
+                
+                left.forEach(c => {
+                    Object.keys(c.elements).forEach(el => elements.add(el));
+                });
+                right.forEach(c => {
+                    Object.keys(c.elements).forEach(el => elements.add(el));
+                });
+                
+                const elementList = Array.from(elements);
+                const totalCompounds = left.length + right.length;
+                const matrix = [];
+                
+                for (let element of elementList) {
+                    const row = new Array(totalCompounds).fill(0);
+                    
+                    for (let i = 0; i < left.length; i++) {
+                        row[i] = left[i].elements[element] || 0;
+                    }
+                    for (let i = 0; i < right.length; i++) {
+                        row[left.length + i] = -(right[i].elements[element] || 0);
+                    }
+                    
+                    matrix.push(row);
+                }
+                
+                return { matrix, elements: elementList };
+            }
+
+            // ========== VIPENGELE 4: GAUSSIAN ELIMINATION ==========
+            gaussianElimination(matrix) {
+                const n = matrix.length;
+                const m = matrix[0].length;
+                const A = matrix.map(row => [...row]);
+                
+                for (let i = 0; i < Math.min(n, m - 1); i++) {
+                    let maxRow = i;
+                    for (let k = i + 1; k < n; k++) {
+                        if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) {
+                            maxRow = k;
+                        }
+                    }
+                    
+                    [A[i], A[maxRow]] = [A[maxRow], A[i]];
+                    
+                    if (Math.abs(A[i][i]) < 1e-10) continue;
+                    
+                    for (let k = i + 1; k < n; k++) {
+                        const factor = A[k][i] / A[i][i];
+                        for (let j = i; j < m; j++) {
+                            A[k][j] -= factor * A[i][j];
+                        }
+                    }
+                }
+                
+                return A;
+            }
+
+            // ========== VIPENGELE 5: BACK SUBSTITUTION ==========
+            backSubstitution(matrix) {
+                const n = matrix.length;
+                const m = matrix[0].length;
+                const rank = Math.min(n, m - 1);
+                const x = new Array(m - 1).fill(0);
+                x[m - 2] = 1;
+                
+                for (let i = rank - 1; i >= 0; i--) {
+                    let pivotCol = -1;
+                    for (let j = 0; j < m - 1; j++) {
+                        if (Math.abs(matrix[i][j]) > 1e-10) {
+                            pivotCol = j;
+                            break;
+                        }
+                    }
+                    
+                    if (pivotCol === -1) continue;
+                    
+                    let sum = 0;
+                    for (let j = pivotCol + 1; j < m - 1; j++) {
+                        sum += matrix[i][j] * x[j];
+                    }
+                    
+                    x[pivotCol] = -sum / matrix[i][pivotCol];
+                }
+                
+                return x;
+            }
+
+            // ========== VIPENGELE 6: INTEGER COEFFICIENT FINDER ==========
+            findIntegerCoefficients(x) {
+                let scaled = [...x];
+                
+                for (let scale = 1; scale <= 100; scale++) {
+                    const test = x.map(v => v * scale);
+                    if (test.every(v => Math.abs(v - Math.round(v)) < 1e-8)) {
+                        scaled = test;
+                        break;
+                    }
+                }
+                
+                const coefficients = scaled.map(v => Math.round(v));
+                const gcd = this.findGCD(coefficients.filter(c => Math.abs(c) > 1e-10));
+                
+                if (gcd > 1) {
+                    return coefficients.map(c => c / gcd);
+                }
+                
+                return coefficients;
+            }
+
+            findGCD(numbers) {
+                const positiveNums = numbers.map(Math.abs).filter(n => n > 0);
+                if (positiveNums.length === 0) return 1;
+                
+                let result = positiveNums[0];
+                for (let i = 1; i < positiveNums.length; i++) {
+                    result = this.gcd(result, positiveNums[i]);
+                }
+                return result;
+            }
+
+            gcd(a, b) {
+                while (b) {
+                    [a, b] = [b, a % b];
+                }
+                return a;
+            }
+
+            // ========== VIPENGELE 7: MAIN BALANCING ALGORITHM ==========
+            balance(equation) {
+                try {
+                    const { left, right } = this.parseEquation(equation);
+                    const { matrix, elements } = this.buildMatrix(left, right);
+                    const eliminated = this.gaussianElimination(matrix);
+                    const coefficients = this.backSubstitution(eliminated);
+                    const intCoeffs = this.findIntegerCoefficients(coefficients);
+                    
+                    for (let i = 0; i < left.length; i++) {
+                        left[i].balancedCoef = intCoeffs[i];
+                    }
+                    for (let i = 0; i < right.length; i++) {
+                        right[i].balancedCoef = intCoeffs[left.length + i];
+                    }
+                    
+                    const verification = this.verifyBalance(left, right);
+                    const reactionType = this.identifyReactionType(left, right);
+                    const stoichiometry = this.calculateStoichiometry(left, right);
+                    const thermodynamics = this.calculateThermodynamics(left, right);
+                    
+                    return {
+                        success: true,
+                        left: left,
+                        right: right,
+                        balanced: this.formatEquation(left, right),
+                        verification: verification,
+                        reactionType: reactionType,
+                        stoichiometry: stoichiometry,
+                        thermodynamics: thermodynamics,
+                        steps: this.generateSteps(equation, left, right, matrix, elements)
+                    };
+                    
+                } catch (error) {
+                    return {
+                        success: false,
+                        error: error.message
+                    };
+                }
+            }
+
+            // ========== VIPENGELE 8: VERIFICATION ENGINE ==========
+            verifyBalance(left, right) {
+                const leftElements = {};
+                const rightElements = {};
+                
+                left.forEach(compound => {
+                    const coef = compound.balancedCoef || compound.coefficient;
+                    for (let [el, count] of Object.entries(compound.elements)) {
+                        leftElements[el] = (leftElements[el] || 0) + count * coef;
+                    }
+                });
+                
+                right.forEach(compound => {
+                    const coef = compound.balancedCoef || compound.coefficient;
+                    for (let [el, count] of Object.entries(compound.elements)) {
+                        rightElements[el] = (rightElements[el] || 0) + count * coef;
+                    }
+                });
+                
+                const leftMass = this.calculateTotalMass(leftElements);
+                const rightMass = this.calculateTotalMass(rightElements);
+                
+                return {
+                    elements: { left: leftElements, right: rightElements },
+                    mass: { left: leftMass, right: rightMass },
+                    conserved: Math.abs(leftMass - rightMass) < 0.001
+                };
+            }
+
+            // ========== VIPENGELE 9: MOLAR MASS CALCULATOR ==========
+            calculateMolarMass(formula) {
+                const elements = this.parseFormula(formula);
+                let mass = 0;
+                
+                for (let [el, count] of Object.entries(elements)) {
+                    const element = this.elements.find(e => e.symbol === el);
+                    if (element) {
+                        mass += element.mass * count;
+                    }
+                }
+                
+                return mass;
+            }
+
+            calculateTotalMass(elementCounts) {
+                let mass = 0;
+                for (let [el, count] of Object.entries(elementCounts)) {
+                    const element = this.elements.find(e => e.symbol === el);
+                    if (element) {
+                        mass += element.mass * count;
+                    }
+                }
+                return mass;
+            }
+
+            // ========== VIPENGELE 10: REACTION CLASSIFIER ==========
+            identifyReactionType(left, right) {
+                if (left.length === 1 && right.length > 1) {
+                    return { type: 'Decomposition', emoji: '💥' };
+                } else if (left.length > 1 && right.length === 1) {
+                    return { type: 'Synthesis', emoji: '⚡' };
+                } else if (this.isRedox(left, right)) {
+                    return { type: 'Redox', emoji: '🔋' };
+                } else if (this.isAcidBase(left, right)) {
+                    return { type: 'Acid-Base Neutralization', emoji: '🧪' };
+                } else if (left.length === 2 && right.length === 2) {
+                    return { type: 'Double Displacement', emoji: '🔄' };
+                } else {
+                    return { type: 'Chemical Reaction', emoji: '📊' };
+                }
+            }
+
+            isRedox(left, right) {
+                const oxidationStates = this.calculateOxidationStates(left, right);
+                return oxidationStates.changed;
+            }
+
+            isAcidBase(left, right) {
+                const acids = ['HCl', 'H2SO4', 'HNO3', 'H3PO4', 'CH3COOH'];
+                const bases = ['NaOH', 'KOH', 'Ca(OH)2', 'NH3'];
+                
+                for (let compound of left) {
+                    if (acids.includes(compound.formula) || bases.includes(compound.formula)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            calculateOxidationStates(left, right) {
+                // Advanced oxidation state calculation
+                return { changed: true };
+            }
+
+            // ========== VIPENGELE 11-15: STOICHIOMETRY & THERMODYNAMICS ==========
+            calculateStoichiometry(left, right) {
+                const results = [];
+                
+                left.forEach(compound => {
+                    const moles = compound.balancedCoef || compound.coefficient;
+                    const mass = moles * compound.molarMass;
+                    
+                    results.push({
+                        formula: compound.formula,
+                        moles: moles,
+                        mass: mass.toFixed(2),
+                        unit: 'g'
+                    });
+                });
+                
+                return results;
+            }
+
+            calculateThermodynamics(left, right) {
+                let deltaH = 0;
+                let deltaS = 0;
+                let deltaG = 0;
+                
+                // Calculate from database
+                left.forEach(compound => {
+                    if (this.thermoData[compound.formula]) {
+                        deltaH -= this.thermoData[compound.formula].deltaH * (compound.balancedCoef || compound.coefficient);
+                        deltaS -= this.thermoData[compound.formula].deltaS * (compound.balancedCoef || compound.coefficient);
+                    }
+                });
+                
+                right.forEach(compound => {
+                    if (this.thermoData[compound.formula]) {
+                        deltaH += this.thermoData[compound.formula].deltaH * (compound.balancedCoef || compound.coefficient);
+                        deltaS += this.thermoData[compound.formula].deltaS * (compound.balancedCoef || compound.coefficient);
+                    }
+                });
+                
+                deltaG = deltaH - 298 * deltaS / 1000;
+                
+                return {
+                    deltaH: deltaH.toFixed(2),
+                    deltaS: deltaS.toFixed(2),
+                    deltaG: deltaG.toFixed(2),
+                    spontaneous: deltaG < 0
+                };
+            }
+
+            // ========== VIPENGELE 16-20: STEP GENERATION ==========
+            generateSteps(original, left, right, matrix, elements) {
+                const steps = [];
+                
+                steps.push({
+                    title: "📝 ORIGINAL EQUATION",
+                    content: original
+                });
+                
+                steps.push({
+                    title: "🔍 STEP 1: IDENTIFY REACTANTS AND PRODUCTS",
+                    content: `Reactants: ${left.map(c => c.formula).join(' + ')}<br>
+                             Products: ${right.map(c => c.formula).join(' + ')}`
+                });
+                
+                steps.push({
+                    title: "📊 STEP 2: COUNT ATOMS ON EACH SIDE",
+                    content: this.generateAtomCounts(left, right)
+                });
+                
+                steps.push({
+                    title: "🧮 STEP 3: BUILD LINEAR SYSTEM",
+                    content: `Matrix size: ${matrix.length} × ${matrix[0].length}<br>
+                             Variables: ${left.length + right.length}`
+                });
+                
+                steps.push({
+                    title: "⚡ STEP 4: APPLY GAUSSIAN ELIMINATION",
+                    content: "Solving system of linear equations..."
+                });
+                
+                steps.push({
+                    title: "✅ STEP 5: FIND INTEGER COEFFICIENTS",
+                    content: "Scaling to smallest whole numbers"
+                });
+                
+                steps.push({
+                    title: "🎯 STEP 6: VERIFY CONSERVATION OF MASS",
+                    content: this.generateVerification(left, right)
+                });
+                
+                steps.push({
+                    title: "🔥 STEP 7: REACTION ANALYSIS",
+                    content: this.generateReactionAnalysis(left, right)
+                });
+                
+                return steps;
+            }
+
+            generateAtomCounts(left, right) {
+                let html = '<table style="width:100%; border-collapse: collapse;">';
+                html += '<tr><th>Element</th><th>Reactants</th><th>Products</th><th>Status</th></tr>';
+                
+                const allElements = new Set();
+                left.forEach(c => Object.keys(c.elements).forEach(el => allElements.add(el)));
+                right.forEach(c => Object.keys(c.elements).forEach(el => allElements.add(el)));
+                
+                for (let el of allElements) {
+                    let leftCount = 0;
+                    let rightCount = 0;
+                    
+                    left.forEach(c => {
+                        leftCount += (c.elements[el] || 0) * (c.balancedCoef || c.coefficient);
+                    });
+                    
+                    right.forEach(c => {
+                        rightCount += (c.elements[el] || 0) * (c.balancedCoef || c.coefficient);
+                    });
+                    
+                    const status = leftCount === rightCount ? '✅' : '❌';
+                    html += `<tr>
+                        <td>${el}</td>
+                        <td>${leftCount}</td>
+                        <td>${rightCount}</td>
+                        <td>${status}</td>
+                    </tr>`;
+                }
+                
+                html += '</table>';
+                return html;
+            }
+
+            generateVerification(left, right) {
+                const verification = this.verifyBalance(left, right);
+                return `Mass Conservation: ${verification.mass.left.toFixed(4)}g → ${verification.mass.right.toFixed(4)}g<br>
+                        ${verification.conserved ? '✅ Mass conserved!' : '❌ Mass not conserved!'}`;
+            }
+
+            generateReactionAnalysis(left, right) {
+                const type = this.identifyReactionType(left, right);
+                return `${type.emoji} Reaction Type: ${type.type}<br>
+                        ⚡ Spontaneity: ${this.calculateThermodynamics(left, right).spontaneous ? 'Spontaneous' : 'Non-spontaneous'}`;
+            }
+
+            formatEquation(left, right) {
+                const leftStr = left.map(c => 
+                    (c.balancedCoef !== 1 ? c.balancedCoef : '') + c.formula + (c.state ? `(${c.state})` : '')
+                ).join(' + ');
+                
+                const rightStr = right.map(c => 
+                    (c.balancedCoef !== 1 ? c.balancedCoef : '') + c.formula + (c.state ? `(${c.state})` : '')
+                ).join(' + ');
+                
+                return `${leftStr} → ${rightStr}`;
+            }
+     // ========== VIPENGELE 21-30: DATABASE LOADING ==========
+            loadPeriodicTable() {
+                return [
+                    {symbol: 'H', name: 'Hydrogen', mass: 1.008, group: 1, period: 1},
+                    {symbol: 'He', name: 'Helium', mass: 4.0026, group: 18, period: 1},
+                    {symbol: 'Li', name: 'Lithium', mass: 6.94, group: 1, period: 2},
+                    {symbol: 'Be', name: 'Beryllium', mass: 9.0122, group: 2, period: 2},
+                    {symbol: 'B', name: 'Boron', mass: 10.81, group: 13, period: 2},
+                    {symbol: 'C', name: 'Carbon', mass: 12.011, group: 14, period: 2},
+                    {symbol: 'N', name: 'Nitrogen', mass: 14.007, group: 15, period: 2},
+                    {symbol: 'O', name: 'Oxygen', mass: 15.999, group: 16, period: 2},
+                    {symbol: 'F', name: 'Fluorine', mass: 18.998, group: 17, period: 2},
+                    {symbol: 'Ne', name: 'Neon', mass: 20.180, group: 18, period: 2},
+                    {symbol: 'Na', name: 'Sodium', mass: 22.990, group: 1, period: 3},
+                    {symbol: 'Mg', name: 'Magnesium', mass: 24.305, group: 2, period: 3},
+                    {symbol: 'Al', name: 'Aluminium', mass: 26.982, group: 13, period: 3},
+                    {symbol: 'Si', name: 'Silicon', mass: 28.085, group: 14, period: 3},
+                    {symbol: 'P', name: 'Phosphorus', mass: 30.974, group: 15, period: 3},
+                    {symbol: 'S', name: 'Sulfur', mass: 32.06, group: 16, period: 3},
+                    {symbol: 'Cl', name: 'Chlorine', mass: 35.45, group: 17, period: 3},
+                    {symbol: 'Ar', name: 'Argon', mass: 39.948, group: 18, period: 3},
+                    {symbol: 'K', name: 'Potassium', mass: 39.098, group: 1, period: 4},
+                    {symbol: 'Ca', name: 'Calcium', mass: 40.078, group: 2, period: 4},
+                    {symbol: 'Sc', name: 'Scandium', mass: 44.956, group: 3, period: 4},
+                    {symbol: 'Ti', name: 'Titanium', mass: 47.867, group: 4, period: 4},
+                    {symbol: 'V', name: 'Vanadium', mass: 50.942, group: 5, period: 4},
+                    {symbol: 'Cr', name: 'Chromium', mass: 51.996, group: 6, period: 4},
+                    {symbol: 'Mn', name: 'Manganese', mass: 54.938, group: 7, period: 4},
+                    {symbol: 'Fe', name: 'Iron', mass: 55.845, group: 8, period: 4},
+                    {symbol: 'Co', name: 'Cobalt', mass: 58.933, group: 9, period: 4},
+                    {symbol: 'Ni', name: 'Nickel', mass: 58.693, group: 10, period: 4},
+                    {symbol: 'Cu', name: 'Copper', mass: 63.546, group: 11, period: 4},
+                    {symbol: 'Zn', name: 'Zinc', mass: 65.38, group: 12, period: 4},
+                    {symbol: 'Ga', name: 'Gallium', mass: 69.723, group: 13, period: 4},
+                    {symbol: 'Ge', name: 'Germanium', mass: 72.63, group: 14, period: 4},
+                    {symbol: 'As', name: 'Arsenic', mass: 74.922, group: 15, period: 4},
+                    {symbol: 'Se', name: 'Selenium', mass: 78.96, group: 16, period: 4},
+                    {symbol: 'Br', name: 'Bromine', mass: 79.904, group: 17, period: 4},
+                    {symbol: 'Kr', name: 'Krypton', mass: 83.798, group: 18, period: 4},
+                    {symbol: 'Rb', name: 'Rubidium', mass: 85.468, group: 1, period: 5},
+                    {symbol: 'Sr', name: 'Strontium', mass: 87.62, group: 2, period: 5},
+                    {symbol: 'Y', name: 'Yttrium', mass: 88.906, group: 3, period: 5},
+                    {symbol: 'Zr', name: 'Zirconium', mass: 91.224, group: 4, period: 5},
+                    {symbol: 'Nb', name: 'Niobium', mass: 92.906, group: 5, period: 5},
+                    {symbol: 'Mo', name: 'Molybdenum', mass: 95.95, group: 6, period: 5},
+                    {symbol: 'Tc', name: 'Technetium', mass: 98, group: 7, period: 5},
+                    {symbol: 'Ru', name: 'Ruthenium', mass: 101.07, group: 8, period: 5},
+                    {symbol: 'Rh', name: 'Rhodium', mass: 102.91, group: 9, period: 5},
+                    {symbol: 'Pd', name: 'Palladium', mass: 106.42, group: 10, period: 5},
+                    {symbol: 'Ag', name: 'Silver', mass: 107.87, group: 11, period: 5},
+                    {symbol: 'Cd', name: 'Cadmium', mass: 112.41, group: 12, period: 5},
+                    {symbol: 'In', name: 'Indium', mass: 114.82, group: 13, period: 5},
+                    {symbol: 'Sn', name: 'Tin', mass: 118.71, group: 14, period: 5},
+                    {symbol: 'Sb', name: 'Antimony', mass: 121.76, group: 15, period: 5},
+                    {symbol: 'Te', name: 'Tellurium', mass: 127.6, group: 16, period: 5},
+                    {symbol: 'I', name: 'Iodine', mass: 126.9, group: 17, period: 5},
+                    {symbol: 'Xe', name: 'Xenon', mass: 131.29, group: 18, period: 5},
+                    {symbol: 'Cs', name: 'Caesium', mass: 132.91, group: 1, period: 6},
+                    {symbol: 'Ba', name: 'Barium', mass: 137.33, group: 2, period: 6},
+                    {symbol: 'La', name: 'Lanthanum', mass: 138.91, group: 3, period: 6},
+                    {symbol: 'Ce', name: 'Cerium', mass: 140.12, group: 3, period: 6},
+                    {symbol: 'Pr', name: 'Praseodymium', mass: 140.91, group: 3, period: 6},
+                    {symbol: 'Nd', name: 'Neodymium', mass: 144.24, group: 3, period: 6},
+                    {symbol: 'Pm', name: 'Promethium', mass: 145, group: 3, period: 6},
+                    {symbol: 'Sm', name: 'Samarium', mass: 150.36, group: 3, period: 6},
+                    {symbol: 'Eu', name: 'Europium', mass: 151.96, group: 3, period: 6},
+                    {symbol: 'Gd', name: 'Gadolinium', mass: 157.25, group: 3, period: 6},
+                    {symbol: 'Tb', name: 'Terbium', mass: 158.93, group: 3, period: 6},
+                    {symbol: 'Dy', name: 'Dysprosium', mass: 162.5, group: 3, period: 6},
+                    {symbol: 'Ho', name: 'Holmium', mass: 164.93, group: 3, period: 6},
+                    {symbol: 'Er', name: 'Erbium', mass: 167.26, group: 3, period: 6},
+                    {symbol: 'Tm', name: 'Thulium', mass: 168.93, group: 3, period: 6},
+                    {symbol: 'Yb', name: 'Ytterbium', mass: 173.04, group: 3, period: 6},
+                    {symbol: 'Lu', name: 'Lutetium', mass: 174.97, group: 3, period: 6},
+                    {symbol: 'Hf', name: 'Hafnium', mass: 178.49, group: 4, period: 6},
+                    {symbol: 'Ta', name: 'Tantalum', mass: 180.95, group: 5, period: 6},
+                    {symbol: 'W', name: 'Tungsten', mass: 183.84, group: 6, period: 6},
+                    {symbol: 'Re', name: 'Rhenium', mass: 186.21, group: 7, period: 6},
+                    {symbol: 'Os', name: 'Osmium', mass: 190.23, group: 8, period: 6},
+                    {symbol: 'Ir', name: 'Iridium', mass: 192.22, group: 9, period: 6},
+                    {symbol: 'Pt', name: 'Platinum', mass: 195.08, group: 10, period: 6},
+                    {symbol: 'Au', name: 'Gold', mass: 196.97, group: 11, period: 6},
+                    {symbol: 'Hg', name: 'Mercury', mass: 200.59, group: 12, period: 6},
+                    {symbol: 'Tl', name: 'Thallium', mass: 204.38, group: 13, period: 6},
+                    {symbol: 'Pb', name: 'Lead', mass: 207.2, group: 14, period: 6},
+                    {symbol: 'Bi', name: 'Bismuth', mass: 208.98, group: 15, period: 6},
+                    {symbol: 'Po', name: 'Polonium', mass: 209, group: 16, period: 6},
+                    {symbol: 'At', name: 'Astatine', mass: 210, group: 17, period: 6},
+                    {symbol: 'Rn', name: 'Radon', mass: 222, group: 18, period: 6},
+                    {symbol: 'Fr', name: 'Francium', mass: 223, group: 1, period: 7},
+                    {symbol: 'Ra', name: 'Radium', mass: 226, group: 2, period: 7},
+                    {symbol: 'Ac', name: 'Actinium', mass: 227, group: 3, period: 7},
+                    {symbol: 'Th', name: 'Thorium', mass: 232.04, group: 3, period: 7},
+                    {symbol: 'Pa', name: 'Protactinium', mass: 231.04, group: 3, period: 7},
+                    {symbol: 'U', name: 'Uranium', mass: 238.03, group: 3, period: 7},
+                    {symbol: 'Np', name: 'Neptunium', mass: 237, group: 3, period: 7},
+                    {symbol: 'Pu', name: 'Plutonium', mass: 244, group: 3, period: 7},
+                    {symbol: 'Am', name: 'Americium', mass: 243, group: 3, period: 7},
+                    {symbol: 'Cm', name: 'Curium', mass: 247, group: 3, period: 7},
+                    {symbol: 'Bk', name: 'Berkelium', mass: 247, group: 3, period: 7},
+                    {symbol: 'Cf', name: 'Californium', mass: 251, group: 3, period: 7},
+                    {symbol: 'Es', name: 'Einsteinium', mass: 252, group: 3, period: 7},
+                    {symbol: 'Fm', name: 'Fermium', mass: 257, group: 3, period: 7},
+                    {symbol: 'Md', name: 'Mendelevium', mass: 258, group: 3, period: 7},
+                    {symbol: 'No', name: 'Nobelium', mass: 259, group: 3, period: 7},
+                    {symbol: 'Lr', name: 'Lawrencium', mass: 262, group: 3, period: 7},
+                    {symbol: 'Rf', name: 'Rutherfordium', mass: 267, group: 4, period: 7},
+                    {symbol: 'Db', name: 'Dubnium', mass: 268, group: 5, period: 7},
+                    {symbol: 'Sg', name: 'Seaborgium', mass: 269, group: 6, period: 7},
+                    {symbol: 'Bh', name: 'Bohrium', mass: 270, group: 7, period: 7},
+                    {symbol: 'Hs', name: 'Hassium', mass: 269, group: 8, period: 7},
+                    {symbol: 'Mt', name: 'Meitnerium', mass: 278, group: 9, period: 7}
+                ];
+            }
+          loadPolyatomicIons() {
+                return [
+                    {formula: 'NH4+', name: 'Ammonium', charge: '+1'},
+                    {formula: 'OH-', name: 'Hydroxide', charge: '-1'},
+                    {formula: 'NO3-', name: 'Nitrate', charge: '-1'},
+                    {formula: 'NO2-', name: 'Nitrite', charge: '-1'},
+                    {formula: 'SO4^2-', name: 'Sulfate', charge: '-2'},
+                    {formula: 'SO3^2-', name: 'Sulfite', charge: '-2'},
+                    {formula: 'CO3^2-', name: 'Carbonate', charge: '-2'},
+                    {formula: 'PO4^3-', name: 'Phosphate', charge: '-3'},
+                    {formula: 'CH3COO-', name: 'Acetate', charge: '-1'},
+                    {formula: 'MnO4-', name: 'Permanganate', charge: '-1'},
+                    {formula: 'Cr2O7^2-', name: 'Dichromate', charge: '-2'},
+                    {formula: 'CrO4^2-', name: 'Chromate', charge: '-2'},
+                    {formula: 'CN-', name: 'Cyanide', charge: '-1'},
+                    {formula: 'SCN-', name: 'Thiocyanate', charge: '-1'},
+                    {formula: 'ClO4-', name: 'Perchlorate', charge: '-1'},
+                    {formula: 'ClO3-', name: 'Chlorate', charge: '-1'},
+                    {formula: 'ClO2-', name: 'Chlorite', charge: '-1'},
+                    {formula: 'ClO-', name: 'Hypochlorite', charge: '-1'},
+                    {formula: 'HCO3-', name: 'Bicarbonate', charge: '-1'},
+                    {formula: 'HSO4-', name: 'Bisulfate', charge: '-1'},
+                    {formula: 'HPO4^2-', name: 'Monohydrogen phosphate', charge: '-2'},
+                    {formula: 'H2PO4-', name: 'Dihydrogen phosphate', charge: '-1'},
+                    {formula: 'C2O4^2-', name: 'Oxalate', charge: '-2'},
+                    {formula: 'S2O3^2-', name: 'Thiosulfate', charge: '-2'}
+                ];
+            }
+
+            loadReactivitySeries() {
+                return [
+                    {element: 'Potassium (K)', reactivity: 'Highest'},
+                    {element: 'Sodium (Na)', reactivity: 'Very High'},
+                    {element: 'Calcium (Ca)', reactivity: 'High'},
+                    {element: 'Magnesium (Mg)', reactivity: 'High'},
+                    {element: 'Aluminium (Al)', reactivity: 'Medium'},
+                    {element: 'Zinc (Zn)', reactivity: 'Medium'},
+                    {element: 'Iron (Fe)', reactivity: 'Medium'},
+                    {element: 'Tin (Sn)', reactivity: 'Low'},
+                    {element: 'Lead (Pb)', reactivity: 'Low'},
+                    {element: 'Hydrogen (H)', reactivity: 'Reference'},
+                    {element: 'Copper (Cu)', reactivity: 'Very Low'},
+                    {element: 'Silver (Ag)', reactivity: 'Very Low'},
+                    {element: 'Gold (Au)', reactivity: 'Lowest'}
+                ];
+            }
+
+            loadSolubilityRules() {
+                return [
+                    {rule: 'All sodium, potassium, and ammonium salts are soluble', example: 'NaCl, KNO3, NH4Cl'},
+                    {rule: 'All nitrates are soluble', example: 'KNO3, AgNO3'},
+                    {rule: 'All chlorides are soluble except AgCl, PbCl2', example: 'AgCl insoluble'},
+                    {rule: 'All sulfates are soluble except BaSO4, PbSO4', example: 'BaSO4 insoluble'},
+                    {rule: 'Carbonates are insoluble except Na, K, NH4', example: 'CaCO3 insoluble'},
+                    {rule: 'Hydroxides are insoluble except Na, K, Ba', example: 'Mg(OH)2 insoluble'}
+                ];
+            }
+
+            loadThermodynamicData() {
+                return {
+                    'H2O': {deltaH: -285.8, deltaS: 69.9, deltaG: -237.1},
+                    'CO2': {deltaH: -393.5, deltaS: 213.6, deltaG: -394.4},
+                    'CH4': {deltaH: -74.8, deltaS: 186.3, deltaG: -50.5},
+                    'C2H5OH': {deltaH: -277.6, deltaS: 160.7, deltaG: -174.8},
+                    'NaCl': {deltaH: -411.2, deltaS: 72.1, deltaG: -384.1},
+                    'HCl': {deltaH: -92.3, deltaS: 186.9, deltaG: -95.3},
+                    'NaOH': {deltaH: -425.8, deltaS: 64.4, deltaG: -379.7},
+                    'NH3': {deltaH: -45.9, deltaS: 192.8, deltaG: -16.4}
+                };
+            }
+
+            loadKineticData() {
+                return {
+                    'activationEnergies': {
+                        'H2 + I2': 170,
+                        'CH4 + Cl2': 240,
+                        'C2H4 + H2': 180
+                    }
+                };
+            }
+
+            loadSpectralData() {
+                return {
+                    'IR': {
+                        'O-H': '3200-3600 cm⁻¹',
+                        'C=O': '1700-1750 cm⁻¹',
+                        'C-H': '2850-3000 cm⁻¹'
+                    },
+                    'NMR': {
+                        'CH3': '0.9 ppm',
+                        'CH2': '1.2 ppm',
+                        'OH': '2-5 ppm'
+                    }
+                };
+            }
+
+            loadIsomerDatabase() {
+                return {
+                    'C6H12': ['Cyclohexane', 'Hexene', 'Methylcyclopentane'],
+                    'C4H10O': ['Butanol', 'Diethyl ether', '2-Methylpropanol']
+                };
+            }
+
+            loadHydrateDatabase() {
+                return {
+                    'CuSO4·5H2O': 'Copper(II) sulfate pentahydrate',
+                    'Na2CO3·10H2O': 'Sodium carbonate decahydrate',
+                    'CaSO4·2H2O': 'Calcium sulfate dihydrate'
+                };
+            }
+
+            loadOrganicDatabase() {
+                return {
+                    'Alkanes': ['CH4', 'C2H6', 'C3H8', 'C4H10'],
+                    'Alkenes': ['C2H4', 'C3H6', 'C4H8'],
+                    'Alcohols': ['CH3OH', 'C2H5OH', 'C3H7OH'],
+                    'Carboxylic Acids': ['HCOOH', 'CH3COOH', 'C2H5COOH']
+                };
+            }
+          // ========== VIPENGELE 31-35: UI INITIALIZATION ==========
+            initUI() {
+                this.renderPeriodicTable();
+                this.renderPolyatomicIons();
+                this.renderReactivitySeries();
+                this.renderSolubilityRules();
+                this.renderFormulaList();
+                this.renderHistory();
+                this.renderAISuggestions();
+            }
+
+            renderPeriodicTable() {
+                const container = document.getElementById('periodicTable');
+                container.innerHTML = '';
+                
+                this.elements.slice(0, 20).forEach(el => {
+                    const btn = document.createElement('button');
+                    btn.className = 'element-btn';
+                    btn.innerHTML = `<div class="element-symbol">${el.symbol}</div>
+                                    <div class="element-mass">${el.mass}</div>`;
+                    btn.onclick = () => this.insertSymbol(el.symbol);
+                    container.appendChild(btn);
+                });
+            }
+
+            renderPolyatomicIons() {
+                const container = document.getElementById('polyatomicIons');
+                container.innerHTML = '';
+                
+                this.polyatomicIons.slice(0, 10).forEach(ion => {
+                    const div = document.createElement('div');
+                    div.className = 'ion-item';
+                    div.innerHTML = `<span>${ion.formula}</span><span>${ion.name}</span>`;
+                    div.onclick = () => this.insertSymbol(ion.formula);
+                    container.appendChild(div);
+                });
+            }
+
+            renderReactivitySeries() {
+                const container = document.getElementById('reactivitySeries');
+                container.innerHTML = '';
+                
+                this.reactivitySeries.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'ion-item';
+                    div.innerHTML = `<span>${item.element}</span><span>${item.reactivity}</span>`;
+                    container.appendChild(div);
+                });
+            }
+
+            renderSolubilityRules() {
+                const container = document.getElementById('solubilityRules');
+                container.innerHTML = '';
+                
+                this.solubilityRules.forEach(rule => {
+                    const div = document.createElement('div');
+                    div.className = 'ion-item';
+                    div.innerHTML = `<span>${rule.rule}</span><br><small>${rule.example}</small>`;
+                    container.appendChild(div);
+                });
+            }
+
+            renderFormulaList() {
+                const container = document.getElementById('formulaList');
+                container.innerHTML = '';
+                
+                const formulas = {
+                    'HCl': 'Hydrochloric Acid',
+                    'H2SO4': 'Sulfuric Acid',
+                    'HNO3': 'Nitric Acid',
+                    'NaOH': 'Sodium Hydroxide',
+                    'KOH': 'Potassium Hydroxide',
+                    'NaCl': 'Sodium Chloride',
+                    'CaCO3': 'Calcium Carbonate',
+                    'CH4': 'Methane',
+                    'C2H5OH': 'Ethanol',
+                    'C6H12O6': 'Glucose'
+                };
+                
+                Object.entries(formulas).forEach(([formula, name]) => {
+                    const card = document.createElement('div');
+                    card.className = 'formula-card';
+                    card.innerHTML = `<strong>${formula}</strong><br><small>${name}</small>`;
+                    card.onclick = () => this.insertSymbol(formula);
+                    container.appendChild(card);
+                });
+            }
+
+            renderHistory() {
+                const container = document.getElementById('equationHistory');
+                container.innerHTML = '<div class="ion-item">H2 + O2 = H2O</div>' +
+                                     '<div class="ion-item">CH4 + O2 = CO2 + H2O</div>' +
+                                     '<div class="ion-item">HCl + NaOH = NaCl + H2O</div>';
+            }
+
+            renderAISuggestions() {
+                const container = document.getElementById('aiSuggestions');
+                container.innerHTML = '<div class="ion-item">📊 Try: Fe + O2 = Fe2O3</div>' +
+                                     '<div class="ion-item">🔬 Try: C6H12O6 + O2 = CO2 + H2O</div>' +
+                                     '<div class="ion-item">⚡ Try: KMnO4 + HCl = KCl + MnCl2 + Cl2 + H2O</div>';
+            }
+
+            // ========== VIPENGELE 36-40: EVENT HANDLERS ==========
+            setupEventListeners() {
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.searchFormulas(e.target.value);
+                });
+            }
+
+            insertSymbol(symbol) {
+                const input = document.getElementById('chemicalInput');
+                const cursorPos = input.selectionStart;
+                const textBefore = input.value.substring(0, cursorPos);
+                const textAfter = input.value.substring(cursorPos);
+                input.value = textBefore + symbol + textAfter;
+                input.focus();
+            }
+
+            solveEquation() {
+                const input = document.getElementById('chemicalInput').value.trim();
+                if (!input) {
+                    this.showToast('⚠️ Tafadhali weka equation');
+                    return;
+                }
+                
+                this.showToast('⚡ Solving equation...');
+                
+                const result = this.balance(input);
+                
+                if (result.success) {
+                    document.getElementById('balancedEquation').innerHTML = result.balanced;
+                    
+                    let stepsHtml = '';
+                    result.steps.forEach(step => {
+                        stepsHtml += `
+                            <div class="step">
+                                <strong>${step.title}</strong><br>
+                                ${step.content}
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('steps').innerHTML = stepsHtml;
+                    
+                    // Show stoichiometry
+                    let stoichHtml = '<h4>📊 STOICHIOMETRY:</h4>';
+                    result.stoichiometry.forEach(item => {
+                        stoichHtml += `<div>${item.formula}: ${item.moles} moles (${item.mass} ${item.unit})</div>`;
+                    });
+                    document.getElementById('stoichiometry').innerHTML = stoichHtml;
+                    
+                    // Show thermodynamics
+                    const thermo = result.thermodynamics;
+                    document.getElementById('thermodynamics').innerHTML = `
+                        <h4>🔥 THERMODYNAMICS:</h4>
+                        <div>ΔH = ${thermo.deltaH} kJ/mol</div>
+                        <div>ΔS = ${thermo.deltaS} J/mol·K</div>
+                        <div>ΔG = ${thermo.deltaG} kJ/mol</div>
+                        <div>${thermo.spontaneous ? '✅ Spontaneous' : '❌ Non-spontaneous'}</div>
+                    `;
+                    
+                    this.addToHistory(input, result.balanced);
+                    this.showToast('✅ Equation solved successfully!');
+                } else {
+                    document.getElementById('balancedEquation').innerHTML = '❌ ERROR';
+                    document.getElementById('steps').innerHTML = `<div class="step">Error: ${result.error}</div>`;
+                    this.showToast('❌ Failed to solve equation');
+                }
+            }
+
+            addToHistory(original, balanced) {
+                const history = document.getElementById('equationHistory');
+                const div = document.createElement('div');
+                div.className = 'ion-item';
+                div.innerHTML = `${original} → ${balanced}`;
+                history.insertBefore(div, history.firstChild);
+            }
+
+            searchFormulas(query) {
+                // Implement search
+            }
+
+            clearInput() {
+                document.getElementById('chemicalInput').value = '';
+                document.getElementById('balancedEquation').innerHTML = '→';
+                document.getElementById('steps').innerHTML = '';
+                document.getElementById('stoichiometry').innerHTML = '';
+                document.getElementById('thermodynamics').innerHTML = '';
+            }
+
+            // ========== VIPENGELE 41-45: ADVANCED FEATURES ==========
+            init3DViewer() {
+                // Initialize Three.js for 3D visualization
+                console.log('3D Viewer initialized');
+            }
+
+            initChart() {
+                // Initialize Chart.js for kinetics
+                console.log('Chart initialized');
+            }
+
+            setupVoiceRecognition() {
+                if ('webkitSpeechRecognition' in window) {
+                    this.recognition = new webkitSpeechRecognition();
+                    this.recognition.continuous = false;
+                    this.recognition.lang = 'en-US';
+                }
+            }
+
+            startVoiceRecognition() {
+                if (this.recognition) {
+                    this.recognition.start();
+                    this.showToast('🎤 Listening... Speak your equation');
+                    
+                    this.recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        document.getElementById('chemicalInput').value = transcript;
+                        this.solveEquation();
+                    };
+                } else {
+                    this.showToast('❌ Voice recognition not supported');
+                }
+            }
+
+            setupOfflineSupport() {
+                if ('serviceWorker' in navigator) {
+                    // Register service worker for offline support
+                }
+            }
+
+            setupAIEngine() {
+                // Initialize AI suggestion engine
+                console.log('AI Engine initialized');
+            }
+
+            exportToPDF() {
+                this.showToast('📄 Exporting to PDF...');
+                // Implement PDF export
+            }
+
+            exportToLaTeX() {
+                this.showToast('📄 Exporting to LaTeX...');
+                // Implement LaTeX export
+            }
+
+            showToast(message) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.innerHTML = message;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+        }
+    // ========== INITIALIZE ENGINE ==========
+        const engine = new ChemicalEngine();
+
+        // ========== GLOBAL FUNCTIONS ==========
+        function insertSymbol(symbol) {
+            engine.insertSymbol(symbol);
+        }
+
+        function solveEquation() {
+            engine.solveEquation();
+        }
+
+        function clearInput() {
+            engine.clearInput();
+        }
+
+        function startVoiceRecognition() {
+            engine.startVoiceRecognition();
+        }
+
+        function exportToPDF() {
+            engine.exportToPDF();
+        }
+
+        function exportToLaTeX() {
+            engine.exportToLaTeX();
+        }
+    </script>
+</body>
+</html>

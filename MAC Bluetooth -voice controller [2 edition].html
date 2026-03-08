@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Udhibiti wa Vifaa vya Bluetooth kwa Sauti</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .voice-section {
+            text-align: center;
+        }
+
+        .mic-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 60px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            color: white;
+            font-size: 3em;
+            cursor: pointer;
+            margin: 20px auto;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mic-button:hover {
+            transform: scale(1.1);
+        }
+
+        .mic-button.listening {
+            background: linear-gradient(45deg, #48dbfb, #1dd1a1);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .status-box {
+            background: #f5f6fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            min-height: 60px;
+            border-left: 4px solid #48dbfb;
+        }
+
+        .device-item {
+            background: #f5f6fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #10ac84;
+        }
+
+        .device-item.disconnected {
+            border-left-color: #ff6b6b;
+        }
+
+        .device-name {
+            font-weight: bold;
+            color: #2d3436;
+        }
+
+        .device-id {
+            font-size: 0.8em;
+            color: #636e72;
+            margin-top: 5px;
+        }
+
+        .device-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .status-connected {
+            background: #10ac84;
+            color: white;
+        }
+
+        .status-disconnected {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #5649c0;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+        }
+
+        .btn-danger:hover {
+            background: #ee5253;
+        }
+
+        .command-list {
+            list-style: none;
+        }
+
+        .command-item {
+            background: #f5f6fa;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #feca57;
+        }
+
+        .error-box {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .connected-devices {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        h2 {
+            color: #2d3436;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎤 Udhibiti wa Vifaa vya Bluetooth kwa Sauti</h1>
+            <p class="subtitle">Unganisha, tenganisha, na udhibiti vifaa vyako kwa kutumia sauti</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Voice Control Section -->
+            <div class="card voice-section">
+                <h2>🎤 Udhibiti kwa Sauti</h2>
+                <button class="mic-button" id="micBtn">🎤</button>
+                <p>Bonyeza kitufe au spacebar kuanza kuzungumza</p>
+                
+                <div class="status-box" id="voiceStatus">
+                    Bonyeza kitufe cha maikrofoni na sema amri...
+                </div>
+
+                <div class="control-buttons">
+                    <button class="btn" id="testVoiceBtn">🔊 Jaribu Sauti</button>
+                    <button class="btn" id="stopListeningBtn">⏹️ Simamisha</button>
+                </div>
+            </div>
+
+            <!-- Connected Devices Section -->
+            <div class="card">
+                <h2>📱 Vifaa Vilivyounganishwa</h2>
+                
+                <div class="connected-devices" id="devicesList">
+                    <p>Hakuna vifaa vilivyounganishwa</p>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn" id="scanBtn">🔍 Tafuta Vifaa Vipya</button>
+                    <button class="btn btn-danger" id="disconnectAllBtn">🔌 Tenganisha Vyote</button>
+                </div>
+            </div>
+
+            <!-- Commands Section -->
+            <div class="card full-width">
+                <h2>📋 Amri za Sauti</h2>
+                
+                <div class="main-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                    <div>
+                        <h3>🔌 Kuunganisha</h3>
+                        <ul class="command-list">
+                            <li class="command-item">"unganisha" - Tafuta na kuunganisha vifaa</li>
+                            <li class="command-item">"tafuta vifaa" - Scan kwa vifaa</li>
+                            <li class="command-item">"sakania" - Anza kutafuta</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3>🔓 Kutenganisha</h3>
+                        <ul class="command-list">
+                            <li class="command-item">"tenganisha [jina]" - Tenganisha kifaa</li>
+                            <li class="command-item">"tenganisha yote" - Vunja miunganisho yote</li>
+                            <li class="command-item">"ondoa [jina]" - Ondoa kifaa</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3>📋 Kuorodhesha</h3>
+                        <ul class="command-list">
+                            <li class="command-item">"orodhesha vifaa" - Onyesha vifaa vyote</li>
+                            <li class="command-item">"vifaa vilivyounganishwa" - Orodha ya vifaa</li>
+                            <li class="command-item">"ni vifaa gani" - Angalia vifaa</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3>⚙️ Kudhibiti</h3>
+                        <ul class="command-list">
+                            <li class="command-item">"washa [jina]" - Washa kifaa</li>
+                            <li class="command-item">"zima [jina]" - Zima kifaa</li>
+                            <li class="command-item">"hali ya [jina]" - Angalia hali</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; background: #f5f6fa; padding: 15px; border-radius: 8px;">
+                    <h3>💡 Vidokezo:</h3>
+                    <ul>
+                        <li>Hakikisha umeruhusu maikrofoni kwenye browser</li>
+                        <li>Bluetooth inahitaji HTTPS au localhost</li>
+                        <li>Tumia Chrome, Edge, au Opera kwa matokeo bora</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="error-box" id="errorBox"></div>
+
+        <footer>
+            <p>© 2024 - Bluetooth Voice Controller</p>
+            <p>Inaendeshwa na Web Bluetooth API na Web Speech API</p>
+        </footer>
+    </div>
+
+    <script>
+        'use strict';
+
+        // Bluetooth Voice Controller Class
+        class BluetoothVoiceController {
+            constructor() {
+                this.devices = new Map();
+                this.isListening = false;
+                this.recognition = null;
+                this.synthesis = window.speechSynthesis;
+                
+                console.log('🚀 Bluetooth Voice Controller inaanza...');
+                this.checkBrowserSupport();
+                this.initializeSpeechRecognition();
+                this.initializeUI();
+                this.setupEventListeners();
+            }
+
+            checkBrowserSupport() {
+                const issues = [];
+                
+                if (!navigator.bluetooth) {
+                    issues.push('❌ Web Bluetooth haitumiki');
+                }
+                
+                if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                    issues.push('❌ Speech Recognition haitumiki');
+                }
+                
+                if (!this.synthesis) {
+                    issues.push('❌ Speech Synthesis haitumiki');
+                }
+
+                if (issues.length > 0) {
+                    this.showError('Browser yako haina: ' + issues.join(', '));
+                } else {
+                    console.log('✅ Browser inasaidia features zote');
+                }
+            }
+
+            initializeSpeechRecognition() {
+                try {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    
+                    // Configuration
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = false;
+                    this.recognition.lang = 'sw-TZ';
+                    this.recognition.maxAlternatives = 1;
+
+                    // Event handlers
+                    this.recognition.onstart = () => {
+                        this.isListening = true;
+                        document.getElementById('micBtn').classList.add('listening');
+                        this.updateVoiceStatus('🎤 Nasikiliza... sema amri yako');
+                        console.log('🎤 Started listening');
+                    };
+
+                    this.recognition.onend = () => {
+                        this.isListening = false;
+                        document.getElementById('micBtn').classList.remove('listening');
+                        this.updateVoiceStatus('⏸️ Bonyeza kitufe cha maikrofoni kuongea');
+                        console.log('🎤 Stopped listening');
+                    };
+
+                    this.recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript.toLowerCase();
+                        const confidence = event.results[0][0].confidence;
+                        
+                        console.log(`📝 Amri: "${transcript}" (conf: ${confidence})`);
+                        this.updateVoiceStatus(`📝 Umema: "${transcript}"`);
+                        
+                        this.processVoiceCommand(transcript);
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.error('❌ Speech recognition error:', event.error);
+                        
+                        let message = 'Hitilafu ya sauti';
+                        switch(event.error) {
+                            case 'no-speech':
+                                message = 'Hakuna sauti iliyotambuliwa. Tafadhali jaribu tena.';
+                                break;
+                            case 'audio-capture':
+                                message = 'Hakuna maikrofoni iliyopatikana.';
+                                break;
+                            case 'not-allowed':
+                                message = 'Tafadhali ruhusu maikrofoni kwenye browser.';
+                                break;
+                        }
+                        
+                        this.showError(message);
+                        this.updateVoiceStatus('❌ ' + message);
+                    };
+
+                } catch (error) {
+                    console.error('❌ Error initializing speech recognition:', error);
+                    this.showError('Hitilafu kuanzisha utambuzi wa sauti');
+                }
+            }
+
+            initializeUI() {
+                // Set initial status
+                this.updateVoiceStatus('✅ Tayari. Bonyeza kitufe cha maikrofoni.');
+                this.updateDevicesList();
+            }
+
+            setupEventListeners() {
+                // Mic button
+                document.getElementById('micBtn').addEventListener('click', () => {
+                    this.toggleListening();
+                });
+
+                // Test voice button
+                document.getElementById('testVoiceBtn').addEventListener('click', () => {
+                    this.speak('Habari! Ninafanya kazi vizuri. Unaweza kuniamuru sasa.');
+                });
+
+                // Stop listening button
+                document.getElementById('stopListeningBtn').addEventListener('click', () => {
+                    if (this.isListening) {
+                        this.recognition.stop();
+                    }
+                });
+
+                // Scan button
+                document.getElementById('scanBtn').addEventListener('click', () => {
+                    this.scanForDevices();
+                });
+
+                // Disconnect all button
+                document.getElementById('disconnectAllBtn').addEventListener('click', () => {
+                    this.disconnectAllDevices();
+                });
+
+                // Keyboard shortcut
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && !this.isListening) {
+                        e.preventDefault();
+                        this.toggleListening();
+                    }
+                });
+            }
+
+            toggleListening() {
+                if (!this.recognition) {
+                    this.showError('Utambuzi wa sauti haupatikani');
+                    return;
+                }
+
+                if (this.isListening) {
+                    this.recognition.stop();
+                } else {
+                    try {
+                        this.recognition.start();
+                    } catch (error) {
+                        console.error('Start listening error:', error);
+                        this.showError('Haiwezi kuanza kusikiliza. Jaribu tena.');
+                    }
+                }
+            }
+
+            processVoiceCommand(command) {
+                console.log('Processing command:', command);
+
+                // Connection commands
+                if (command.includes('unganisha') || command.includes('tafuta') || command.includes('sakania')) {
+                    this.speak('Natafuta vifaa vya bluetooth');
+                    this.scanForDevices();
+                }
+                
+                // Disconnect commands
+                else if (command.includes('tenganisha yote') || command.includes('vunja yote')) {
+                    this.speak('Nazitenganisha vifaa vyote');
+                    this.disconnectAllDevices();
+                }
+                
+                else if (command.includes('tenganisha') || command.includes('ondoa')) {
+                    const words = command.split(' ');
+                    let deviceName = '';
+                    
+                    // Extract device name
+                    if (command.includes('tenganisha')) {
+                        deviceName = command.replace('tenganisha', '').trim();
+                    } else if (command.includes('ondoa')) {
+                        deviceName = command.replace('ondoa', '').trim();
+                    }
+                    
+                    if (deviceName) {
+                        this.speak(`Nazitenganisha na ${deviceName}`);
+                        this.disconnectDeviceByName(deviceName);
+                    } else {
+                        this.speak('Tafadhali taja jina la kifaa');
+                    }
+                }
+                
+                // List devices
+                else if (command.includes('orodhesha') || command.includes('vifaa gani') || command.includes('ni vifaa')) {
+                    this.listConnectedDevices();
+                }
+                
+                // Control commands (example)
+                else if (command.includes('washa') || command.includes('zima')) {
+                    const words = command.split(' ');
+                    const action = words[0]; // washa or zima
+                    const deviceName = words.slice(1).join(' ');
+                    
+                    this.speak(`${action} ${deviceName}`);
+                    this.controlDevice(action, deviceName);
+                }
+                
+                // Help command
+                else if (command.includes('msaada') || command.includes('help')) {
+                    this.speak('Ninaweza kusaidia kuunganisha, kutenganisha, na kuorodhesha vifaa vya bluetooth');
+                }
+                
+                else {
+                    this.speak('Samahani, sijaelewa amri yako. Tafadhali jaribu tena.');
+                }
+            }
+
+            async scanForDevices() {
+                this.updateVoiceStatus('🔍 Inatafuta vifaa...');
+                
+                try {
+                    const device = await navigator.bluetooth.requestDevice({
+                        acceptAllDevices: true,
+                        optionalServices: [
+                            'battery_service',
+                            'device_information',
+                            'generic_access',
+                            'generic_attribute'
+                        ]
+                    });
+
+                    console.log('📱 Device found:', device);
+                    await this.connectToDevice(device);
+                    
+                } catch (error) {
+                    console.error('Scan error:', error);
+                    
+                    if (error.name !== 'NotFoundError') {
+                        this.showError('Hitilafu kutafuta vifaa: ' + error.message);
+                        this.updateVoiceStatus('❌ ' + error.message);
+                    }
+                }
+            }
+
+            async connectToDevice(device) {
+                try {
+                    const deviceName = device.name || `Bluetooth_Device_${this.devices.size + 1}`;
+                    this.updateVoiceStatus(`🔌 Inaunganisha na ${deviceName}...`);
+                    
+                    // Add to devices map
+                    this.devices.set(device.id, {
+                        device: device,
+                        name: deviceName,
+                        connected: false,
+                        server: null
+                    });
+
+                    // Handle disconnection
+                    device.addEventListener('gattserverdisconnected', () => {
+                        this.handleDisconnection(device.id);
+                    });
+
+                    // Connect to GATT server
+                    const server = await device.gatt.connect();
+                    
+                    // Update status
+                    const deviceInfo = this.devices.get(device.id);
+                    deviceInfo.connected = true;
+                    deviceInfo.server = server;
+
+                    // Update UI
+                    this.updateDevicesList();
+                    
+                    const message = `✅ Imeunganishwa na ${deviceName}`;
+                    this.updateVoiceStatus(message);
+                    this.speak(message);
+                    
+                    console.log('✅ Connected to:', deviceName);
+                    
+                } catch (error) {
+                    console.error('Connection error:', error);
+                    this.devices.delete(device.id);
+                    
+                    const message = '❌ Imeshindwa kuunganisha';
+                    this.updateVoiceStatus(message);
+                    this.showError(message + ': ' + error.message);
+                }
+            }
+
+            handleDisconnection(deviceId) {
+                const deviceInfo = this.devices.get(deviceId);
+                if (deviceInfo) {
+                    deviceInfo.connected = false;
+                    this.updateDevicesList();
+                    
+                    const message = `🔌 ${deviceInfo.name} imetenganishwa`;
+                    this.updateVoiceStatus(message);
+                    console.log(message);
+                }
+            }
+
+            disconnectDeviceByName(deviceName) {
+                let disconnected = false;
+                
+                for (const [id, deviceInfo] of this.devices) {
+                    if (deviceInfo.name.toLowerCase().includes(deviceName.toLowerCase()) && deviceInfo.connected) {
+                        if (deviceInfo.device.gatt.connected) {
+                            deviceInfo.device.gatt.disconnect();
+                            disconnected = true;
+                        }
+                        break;
+                    }
+                }
+                
+                if (disconnected) {
+                    this.speak(`Imetenganishwa na ${deviceName}`);
+                } else {
+                    const message = `❌ Haikupatikana kifaa kinachoitwa ${deviceName}`;
+                    this.speak(message);
+                    this.updateVoiceStatus(message);
+                }
+            }
+
+            disconnectAllDevices() {
+                let count = 0;
+                
+                for (const [id, deviceInfo] of this.devices) {
+                    if (deviceInfo.connected && deviceInfo.device.gatt.connected) {
+                        deviceInfo.device.gatt.disconnect();
+                        count++;
+                    }
+                }
+                
+                const message = `🔌 Vifaa ${count} vimetenganishwa`;
+                this.updateVoiceStatus(message);
+                this.speak(message);
+            }
+
+            listConnectedDevices() {
+                const connectedDevices = [];
+                
+                for (const [id, deviceInfo] of this.devices) {
+                    if (deviceInfo.connected) {
+                        connectedDevices.push(deviceInfo.name);
+                    }
+                }
+                
+                if (connectedDevices.length === 0) {
+                    const message = 'Hakuna vifaa vilivyounganishwa';
+                    this.speak(message);
+                    this.updateVoiceStatus(message);
+                } else {
+                    const message = `Vifaa vilivyounganishwa: ${connectedDevices.join(', ')}`;
+                    this.speak(message);
+                    this.updateVoiceStatus(message);
+                }
+            }
+
+            controlDevice(action, deviceName) {
+                // This is an example - actual implementation depends on device
+                const message = `${action.toUpperCase()} - Inadhibiti ${deviceName}`;
+                console.log(message);
+                this.updateVoiceStatus(message);
+                
+                // Here you would send actual commands to the device via Bluetooth
+                setTimeout(() => {
+                    this.speak(`Imekamilika: ${action} ${deviceName}`);
+                }, 1000);
+            }
+
+            speak(text) {
+                if (!this.synthesis) {
+                    console.error('Speech synthesis not available');
+                    return;
+                }
+
+                try {
+                    // Cancel any ongoing speech
+                    this.synthesis.cancel();
+
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'sw-TZ';
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1;
+                    
+                    utterance.onend = () => console.log('✅ Speech finished');
+                    utterance.onerror = (error) => console.error('❌ Speech error:', error);
+                    
+                    this.synthesis.speak(utterance);
+                    
+                } catch (error) {
+                    console.error('Speech error:', error);
+                }
+            }
+
+            updateVoiceStatus(message) {
+                const statusElement = document.getElementById('voiceStatus');
+                if (statusElement) {
+                    statusElement.innerHTML = message;
+                }
+            }
+
+            updateDevicesList() {
+                const devicesList = document.getElementById('devicesList');
+                
+                if (this.devices.size === 0) {
+                    devicesList.innerHTML = '<p>📱 Hakuna vifaa vilivyounganishwa</p>';
+                    return;
+                }
+
+                let html = '';
+                
+                for (const [id, deviceInfo] of this.devices) {
+                    const statusClass = deviceInfo.connected ? 'status-connected' : 'status-disconnected';
+                    const statusText = deviceInfo.connected ? 'Imeunganishwa' : 'Haijaungwa';
+                    
+                    html += `
+                        <div class="device-item ${deviceInfo.connected ? '' : 'disconnected'}">
+                            <div>
+                                <div class="device-name">${deviceInfo.name}</div>
+                                <div class="device-id">ID: ${id.substring(0, 8)}...</div>
+                            </div>
+                            <div class="device-status ${statusClass}">${statusText}</div>
+                        </div>
+                    `;
+                }
+                
+                devicesList.innerHTML = html;
+            }
+
+            showError(message) {
+                console.error('Error:', message);
+                
+                const errorBox = document.getElementById('errorBox');
+                errorBox.textContent = message;
+                errorBox.style.display = 'block';
+                
+                setTimeout(() => {
+                    errorBox.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Initialize the app when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📱 DOM loaded, starting app...');
+            
+            try {
+                // Create instance and make it globally available
+                window.app = new BluetoothVoiceController();
+                console.log('✅ App initialized successfully');
+            } catch (error) {
+                console.error('❌ Failed to initialize app:', error);
+                
+                const errorBox = document.getElementById('errorBox');
+                errorBox.textContent = 'Imeshindwa kuanzisha programu: ' + error.message;
+                errorBox.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
